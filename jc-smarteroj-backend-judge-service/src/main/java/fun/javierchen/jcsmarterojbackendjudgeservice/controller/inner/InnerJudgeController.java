@@ -18,4 +18,6 @@ public class InnerJudgeController implements JudgeFeignClient {
     public QuestionSubmitVO doJudge(Long questionSubmitId, User loginUser) {
         return judgeService.doJudge(questionSubmitId, loginUser);
     }
+
+
 }

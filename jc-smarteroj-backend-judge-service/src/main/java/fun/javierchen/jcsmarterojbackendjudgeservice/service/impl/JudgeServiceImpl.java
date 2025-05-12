@@ -41,8 +41,6 @@ public class JudgeServiceImpl implements JudgeService {
     @Resource
     private QuestionFeignClient questionFeignClient;
 
-    @Resource
-    private QuestionSubmitService questionSubmitService;
 
     @Resource
     private JudgeManager judgeManager;
@@ -55,7 +53,7 @@ public class JudgeServiceImpl implements JudgeService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "提交的题目记录不存在");
         }
 
-        QuestionSubmit questionSubmit = questionSubmitService.getById(questionSubmitId);
+        QuestionSubmit questionSubmit = questionFeignClient.getQuestionSubmitById(questionSubmitId);
         if (questionSubmit == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目提交记录不存在");
         }
@@ -82,7 +80,7 @@ public class JudgeServiceImpl implements JudgeService {
         QuestionSubmit questionSubmitUpdate = new QuestionSubmit();
         questionSubmitUpdate.setId(questionSubmitId);
         questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.RUNNING.getValue());
-        boolean updateResult = questionSubmitService.updateById(questionSubmitUpdate);
+        boolean updateResult = questionFeignClient.updateQuestionSubmitById(questionSubmitUpdate);
         if (!updateResult) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新状态失败");
         }
@@ -127,12 +125,12 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitUpdate.setStatus(questionSubmitStatus.getValue());
         questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
         questionSubmitUpdate.setOutputResult(JSONUtil.toJsonStr(answerList));
-        updateResult = questionSubmitService.updateById(questionSubmitUpdate);
+        updateResult = questionFeignClient.updateQuestionSubmitById(questionSubmitUpdate);
         if (!updateResult) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新题目提交信息失败");
         }
 
         // 获取新的提交对象返回
-        return questionSubmitService.getQuestionSubmitVO(questionSubmitService.getById(questionSubmitId), loginUser);
+        return questionFeignClient.getQuestionSubmitVO(questionFeignClient.getQuestionSubmitById(questionSubmitId), loginUser);
     }
 }

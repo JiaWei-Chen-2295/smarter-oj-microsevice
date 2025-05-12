@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import fun.javierchen.jcojbackendmodel.dto.question.QuestionQueryRequest;
 import fun.javierchen.jcojbackendmodel.entity.Question;
 import fun.javierchen.jcojbackendmodel.entity.QuestionSubmit;
+import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
 import fun.javierchen.jcojbackendmodel.vo.QuestionVO;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -42,4 +43,6 @@ public interface QuestionFeignClient {
     @PostMapping("/submit/update")
     boolean updateQuestionSubmitById(@RequestBody QuestionSubmit questionSubmitUpdate);
 
+    @PostMapping("/submit/get/vo")
+    QuestionSubmitVO getQuestionSubmitVO(@RequestBody QuestionSubmit questionSubmitById,@RequestParam("loginUser") User loginUser);
 }
