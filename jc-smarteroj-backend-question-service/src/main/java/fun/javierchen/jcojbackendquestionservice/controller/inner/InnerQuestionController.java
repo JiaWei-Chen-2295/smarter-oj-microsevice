@@ -8,12 +8,14 @@ import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSubmitService;
 import fun.javierchen.jcojbackendserverclient.QuestionFeignClient;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-@RestController("/inner")
+@RestController
+@RequestMapping("/inner")
 public class InnerQuestionController implements QuestionFeignClient {
 
     @Resource

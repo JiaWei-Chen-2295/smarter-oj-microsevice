@@ -35,6 +35,14 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
+
+        <!-- Knife4j 接口文档 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+
 <!--        我们的服务依赖-->
         <dependency>
             <groupId>fun.javierchen</groupId>

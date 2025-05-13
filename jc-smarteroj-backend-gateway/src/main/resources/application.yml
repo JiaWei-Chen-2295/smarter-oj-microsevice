@@ -2,3 +2,26 @@ spring:
   cloud:
     nacos:
       serverAddr: 127.0.0.1:8848
+    gateway:
+      routes:
+        - id: jc-smarteroj-backend-user-service
+          uri: lb://jc-smarteroj-backend-user-service
+          predicates:
+            - Path=/api/user/**
+        - id: jc-smarteroj-backend-question-service
+          uri: lb://jc-smarteroj-backend-question-service
+          predicates:
+            - Path=/api/question/**
+        - id: jc-smarteroj-backend-judge-service
+          uri: lb://jc-smarteroj-backend-judge-service
+          predicates:
+            - Path=/api/judge/**
+  application:
+    name: jc-smarteroj-backend-gateway
+    # Gateway 和 MVC 不能共存
+
+  main:
+    web-application-type: reactive
+server:
+  port: 8101
+

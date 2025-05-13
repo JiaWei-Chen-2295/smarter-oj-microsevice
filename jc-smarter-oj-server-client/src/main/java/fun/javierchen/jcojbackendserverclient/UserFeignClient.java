@@ -7,6 +7,8 @@ import fun.javierchen.jcojbackendmodel.enums.UserRoleEnum;
 import fun.javierchen.jcojbackendmodel.vo.UserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -21,6 +23,7 @@ import static fun.javierchen.jcojbackendcommon.constant.UserConstant.USER_LOGIN_
  *
  * @author JavierChen
  */
+
 @FeignClient(name = "jc-smarteroj-backend-user-service", path="/api/user/inner")
 public interface UserFeignClient {
     /*

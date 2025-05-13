@@ -3,6 +3,7 @@ package fun.javierchen.jcsmarterojbackenduserservice.controller.inner;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
 import fun.javierchen.jcsmarterojbackenduserservice.service.UserService;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -15,7 +16,8 @@ import java.util.List;
 /**
  * 用于内部调用
  */
-@RestController("/inner")
+@RestController
+@RequestMapping("/inner")
 public class InnerUserController implements UserFeignClient {
 
     @Resource
