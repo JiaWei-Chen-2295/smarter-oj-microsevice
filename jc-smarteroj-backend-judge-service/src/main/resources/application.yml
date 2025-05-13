@@ -23,6 +23,7 @@ spring:
       serverAddr: 127.0.0.1:8848
 
 
+
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -52,6 +53,7 @@ server:
     session:
       cookie:
         max-age: 2592000
+        path: '/api'
       timeout: 25292000
 mybatis-plus:
   configuration:
