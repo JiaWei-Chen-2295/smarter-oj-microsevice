@@ -20,7 +20,7 @@ spring:
     timeout: 259200000
   cloud:
     nacos:
-      serverAddr: 127.0.0.1:8848
+      serverAddr: 127.0.0.1:5526
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -72,4 +72,4 @@ knife4j:
       default:
         api-rule: package
         api-rule-resources:
-          - fun.javierchen.jcsmarterojbackenduserservice.controller
+          - fun.javierchen.jcojbackendquestionservice.controller

@@ -13,10 +13,12 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+
 @Component
 public class GlobalAuthFilter implements GlobalFilter {
 
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -29,6 +31,6 @@ public class GlobalAuthFilter implements GlobalFilter {
             DataBuffer wrap = dataBufferFactory.wrap("无权限".getBytes(StandardCharsets.UTF_8));
             return response.writeWith(Mono.just(wrap));
         }
-        return null;
+        return chain.filter(exchange);
     }
 }
