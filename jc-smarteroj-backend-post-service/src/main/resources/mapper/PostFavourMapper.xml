@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.javierchen.jcojbackendpostservice.mapper.PostFavourMapper">
+
+    <select id="listFavourPostByPage" resultType="fun.javierchen.jcojbackendmodel.entity.Post">
+        select p.*
+        from post p
+        join post_favour pf on p.id = pf.postId
+        where pf.userId = #{favourUserId}
+        <if test="ew.sqlSegment != null and ew.sqlSegment != ''">
+            and ${ew.sqlSegment}
+        </if>
+    </select>
+
+</mapper>

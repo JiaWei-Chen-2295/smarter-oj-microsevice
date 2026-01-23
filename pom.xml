@@ -15,7 +15,7 @@
         <module>jc-smarteroj-backend-user-service</module>
         <module>jc-smarteroj-backend-judge-service</module>
         <module>jc-smarteroj-backend-question-service</module>
-        <module>jc-smarteroj-backend-user-service</module>
+        <module>jc-smarteroj-backend-post-service</module>
         <module>jc-smarter-oj-server-client</module>
     </modules>
     <properties>

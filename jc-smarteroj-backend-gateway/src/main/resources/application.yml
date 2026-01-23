@@ -16,6 +16,10 @@ spring:
           uri: lb://jc-smarteroj-backend-judge-service
           predicates:
             - Path=/api/judge/**
+        - id: jc-smarteroj-backend-post-service
+          uri: lb://jc-smarteroj-backend-post-service
+          predicates:
+            - Path=/api/post/**
   application:
     name: jc-smarteroj-backend-gateway
     # Gateway 和 MVC 不能共存
