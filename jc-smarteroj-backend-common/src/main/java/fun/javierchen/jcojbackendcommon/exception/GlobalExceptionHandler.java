@@ -1,6 +1,5 @@
 package fun.javierchen.jcojbackendcommon.exception;
 
-
 import fun.javierchen.jcojbackendcommon.common.BaseResponse;
 import fun.javierchen.jcojbackendcommon.common.ErrorCode;
 import fun.javierchen.jcojbackendcommon.common.ResultUtils;
@@ -26,6 +25,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public BaseResponse<?> runtimeExceptionHandler(RuntimeException e) {
         log.error("RuntimeException", e);
-        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误");
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误: " + e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public BaseResponse<?> exceptionHandler(Exception e) {
+        log.error("Exception", e);
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误: " + e.getMessage());
     }
 }

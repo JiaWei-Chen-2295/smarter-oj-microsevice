@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan("fun.javierchen.jcojbackendquestionservice.mapper")
 @EnableScheduling
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
-//@ComponentScan({"fun.javierchen.jcojbackendcommon", "fun.javierchen.jcojbackendquestionservice"})
+@ComponentScan({ "fun.javierchen.jcojbackendcommon", "fun.javierchen.jcojbackendquestionservice" })
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "fun.javierchen.jcojbackendserverclient")
 public class JcSmarterojBackendQuestionServiceApplication {
