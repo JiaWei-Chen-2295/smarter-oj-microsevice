@@ -96,3 +96,17 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: true
+
+# 阿里短信接口
+aliyun:
+  sms:
+    accessKeyId: YOUR_ACCESS_KEY
+    accessKeySecret: YOUR_SECRET
+    signName: YOUR_SIGN_NAME
+    templateCode: YOUR_TEMPLATE_CODE
+    simulate: true # Set to false to actually send SMS
+# 阿里巴巴行为验证码
+captcha:
+  id: "ac46d9e9bd532607cf2b1ba39075053e"
+  key: "f72c10ffca635a9e4af69d4c2e5a41f5"
+  domain: "https://captcha.alicaptcha.com"

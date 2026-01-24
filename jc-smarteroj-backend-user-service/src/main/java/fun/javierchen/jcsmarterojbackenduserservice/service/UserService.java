@@ -2,11 +2,12 @@ package fun.javierchen.jcsmarterojbackenduserservice.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import fun.javierchen.jcojbackendmodel.dto.user.SmsCaptchaRequest;
+import fun.javierchen.jcojbackendmodel.dto.user.UserPhoneLoginRequest;
 import fun.javierchen.jcojbackendmodel.dto.user.UserQueryRequest;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.LoginUserVO;
 import fun.javierchen.jcojbackendmodel.vo.UserVO;
-
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -107,6 +108,23 @@ public interface UserService extends IService<User> {
      * @param userQueryRequest
      * @return
      */
+    /**
+     * 发送短信验证码
+     * 
+     * @param request 请求参数
+     * @return 是否发送成功
+     */
+    boolean sendSmsCaptcha(SmsCaptchaRequest request);
+
+    /**
+     * 手机号登录
+     * 
+     * @param request     请求参数
+     * @param httpRequest HTTP请求
+     * @return 登录用户信息
+     */
+    LoginUserVO userLoginByPhone(UserPhoneLoginRequest request, HttpServletRequest httpRequest);
+
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
 }

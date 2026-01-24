@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static fun.javierchen.jcsmarterojbackenduserservice.service.impl.UserServiceImpl.SALT;
-
 
 /**
  * 用户接口
@@ -40,7 +40,6 @@ public class UserController {
 
     @Resource
     private UserService userService;
-
 
     // region 登录相关
 
@@ -73,7 +72,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest,
+            HttpServletRequest request) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -85,7 +85,6 @@ public class UserController {
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
         return ResultUtils.success(loginUserVO);
     }
-
 
     /**
      * 用户注销
@@ -272,5 +271,50 @@ public class UserController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    @Value("${captcha.id}")
+    private String captchaId;
+
+    /**
+     * 获取验证码配置 (接口名保留，逻辑替换)
+     * 
+     * @return
+     */
+    @PostMapping("/captcha/fetch")
+    public BaseResponse<String> getCaptcha() {
+        return ResultUtils.success(captchaId);
+    }
+
+    /**
+     * 行为验证码二次校验 (用于保护短信接口)
+     * 
+     * @param request
+     * @return
+     */
+    @PostMapping("/captcha/sms")
+    public BaseResponse<Boolean> sendSmsCaptcha(@RequestBody SmsCaptchaRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean result = userService.sendSmsCaptcha(request);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 手机号登录
+     * 
+     * @param request
+     * @param httpServletRequest
+     * @return
+     */
+    @PostMapping("/login/phone")
+    public BaseResponse<LoginUserVO> userLoginByPhone(@RequestBody UserPhoneLoginRequest request,
+            HttpServletRequest httpServletRequest) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        LoginUserVO loginUserVO = userService.userLoginByPhone(request, httpServletRequest);
+        return ResultUtils.success(loginUserVO);
     }
 }

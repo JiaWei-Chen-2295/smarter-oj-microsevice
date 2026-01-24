@@ -48,8 +48,10 @@ public class SaTokenConfig {
                 .addExclude(
                         // 用户服务 - 登录注册相关（路径是 /api/user + /）
                         "/api/user/login",
+                        "/api/user/login/phone", // 手机号登录
                         "/api/user/register",
                         "/api/user/logout",
+                        "/api/user/captcha/**", // 验证码接口
                         "/api/user/get/login", // 获取当前登录用户（前端轮询）
                         // 接口文档
                         "/doc.html",

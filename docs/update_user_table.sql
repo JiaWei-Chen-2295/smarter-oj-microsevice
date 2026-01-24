@@ -1,0 +1,2 @@
+ALTER TABLE user ADD COLUMN phone VARCHAR(20) DEFAULT NULL COMMENT '手机号';
+CREATE UNIQUE INDEX idx_user_phone ON user(phone);
