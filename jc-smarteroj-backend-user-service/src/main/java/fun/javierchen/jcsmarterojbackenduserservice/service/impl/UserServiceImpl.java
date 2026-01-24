@@ -1,5 +1,7 @@
 package fun.javierchen.jcsmarterojbackenduserservice.service.impl;
 
+import cn.dev33.satoken.session.SaSession;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -25,8 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static fun.javierchen.jcojbackendcommon.constant.UserConstant.USER_LOGIN_STATE;
-
+import static fun.javierchen.jcojbackendcommon.constant.UserConstant.SA_SESSION_USER_KEY;
 
 /**
  * 用户服务实现
@@ -104,11 +105,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
-        // 3. 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        // 3. 使用 Sa-Token 记录用户的登录态
+        StpUtil.login(user.getId());
+        // 将用户信息存入 Sa-Token Session
+        SaSession session = StpUtil.getSession();
+        session.set(SA_SESSION_USER_KEY, user);
         return this.getLoginUserVO(user);
     }
-
 
     /**
      * 获取当前登录用户
@@ -118,13 +121,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
+        // 1. 使用 Sa-Token 判断是否已登录
+        if (!StpUtil.isLogin()) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        // 2. 从 Sa-Token Session 获取用户信息
+        SaSession session = StpUtil.getSession();
+        User currentUser = session.getModel(SA_SESSION_USER_KEY, User.class);
         if (currentUser == null || currentUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        // 从数据库查询（追求性能的话可以注释，直接走缓存）
+        // 3. 从数据库查询最新信息（追求性能的话可以注释，直接走缓存）
         long userId = currentUser.getId();
         currentUser = this.getById(userId);
         if (currentUser == null) {
@@ -141,15 +148,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getLoginUserPermitNull(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
+        // 1. 使用 Sa-Token 判断是否已登录
+        if (!StpUtil.isLogin()) {
+            return null;
+        }
+        // 2. 从 Sa-Token Session 获取用户信息
+        SaSession session = StpUtil.getSession();
+        User currentUser = session.getModel(SA_SESSION_USER_KEY, User.class);
         if (currentUser == null || currentUser.getId() == null) {
             return null;
         }
-        // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        return this.getById(userId);
+        // 3. 从数据库查询最新信息
+        return this.getById(currentUser.getId());
     }
 
     /**
@@ -160,9 +170,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public boolean isAdmin(HttpServletRequest request) {
-        // 仅管理员可查询
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User user = (User) userObj;
+        // 使用 Sa-Token 判断是否为管理员
+        if (!StpUtil.isLogin()) {
+            return false;
+        }
+        SaSession session = StpUtil.getSession();
+        User user = session.getModel(SA_SESSION_USER_KEY, User.class);
         return isAdmin(user);
     }
 
@@ -178,11 +191,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
+        // 使用 Sa-Token 判断是否已登录
+        if (!StpUtil.isLogin()) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
-        // 移除登录态
-        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        // 使用 Sa-Token 登出
+        StpUtil.logout();
         return true;
     }
 

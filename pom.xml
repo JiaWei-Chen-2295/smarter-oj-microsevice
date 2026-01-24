@@ -24,6 +24,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.6.13</spring-boot.version>
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
+        <!-- Sa-Token 权限认证框架 -->
+        <sa-token.version>1.39.0</sa-token.version>
     </properties>
     <dependencies>
         <dependency>

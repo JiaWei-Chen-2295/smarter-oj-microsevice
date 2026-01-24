@@ -8,11 +8,16 @@ package fun.javierchen.jcojbackendcommon.constant;
 public interface UserConstant {
 
     /**
-     * 用户登录态键
+     * 用户登录态键（兼容旧代码）
      */
     String USER_LOGIN_STATE = "user_login";
 
-    //  region 权限
+    /**
+     * Sa-Token Session 中存储用户信息的 Key
+     */
+    String SA_SESSION_USER_KEY = "user_info";
+
+    // region 权限
 
     /**
      * 默认角色

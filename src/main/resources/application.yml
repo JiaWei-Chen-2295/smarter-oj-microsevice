@@ -4,6 +4,10 @@ codesandbox:
   type: 'remote'
   remote-url: 'http://localhost:8080/executeCode'
 
+feign:
+  okhttp:
+    enabled: true
+
 spring:
   application:
     name: jc-smarteroj-backend-user-service

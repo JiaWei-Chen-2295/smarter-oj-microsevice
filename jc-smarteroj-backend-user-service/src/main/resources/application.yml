@@ -4,6 +4,10 @@ codesandbox:
   type: 'remote'
   remote-url: 'http://localhost:8080/executeCode'
 
+feign:
+  okhttp:
+    enabled: true
+
 spring:
   application:
     name: jc-smarteroj-backend-user-service
@@ -75,3 +79,20 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - fun.javierchen.jcsmarterojbackenduserservice.controller
+
+# ====== Sa-Token 配置 ======
+sa-token:
+  # token 名称（同时也是 Cookie 名称和请求头名称）
+  token-name: satoken
+  # token 有效期（单位：秒），默认 30 天
+  timeout: 2592000
+  # token 最低活跃频率，-1 代表不限制（永不冻结）
+  active-timeout: -1
+  # 是否允许同一账号多地同时登录
+  is-concurrent: true
+  # 在多人登录同一账号时，是否共用一个 token
+  is-share: true
+  # token 风格（uuid: 标准UUID风格）
+  token-style: uuid
+  # 是否输出操作日志
+  is-log: true

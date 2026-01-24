@@ -43,6 +43,32 @@
             <artifactId>knife4j-gateway-spring-boot-starter</artifactId>
             <version>4.4.0</version>
         </dependency>
+
+        <!-- Sa-Token Reactor 整合包（专用于 Spring Cloud Gateway 响应式架构） -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-reactor-spring-boot-starter</artifactId>
+            <version>${sa-token.version}</version>
+        </dependency>
+
+        <!-- Sa-Token 整合 Redis（网关需要验证 Token） -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis-jackson</artifactId>
+            <version>${sa-token.version}</version>
+        </dependency>
+
+        <!-- Redis 连接池 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+
+        <!-- 响应式 Redis（Gateway 是 WebFlux 架构） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

@@ -4,6 +4,10 @@ codesandbox:
   type: 'remote'
   remote-url: 'http://localhost:8080/executeCode'
 
+feign:
+  okhttp:
+    enabled: true
+
 spring:
   application:
     name: jc-smarteroj-backend-judge-service
@@ -76,3 +80,13 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - fun.javierchen.jcsmarterojbackendjudgeservice.controller
+
+# ====== Sa-Token 配置 ======
+sa-token:
+  token-name: satoken
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: true

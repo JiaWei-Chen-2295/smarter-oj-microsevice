@@ -28,6 +28,10 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-okhttp</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -45,6 +49,13 @@
             <artifactId>jc-smarteroj-backend-model</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- 公共模块（包含 Sa-Token 依赖和常量定义） -->
+        <dependency>
+            <groupId>fun.javierchen</groupId>
+            <artifactId>jc-smarteroj-backend-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

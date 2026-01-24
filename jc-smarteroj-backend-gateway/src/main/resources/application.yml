@@ -25,6 +25,12 @@ spring:
     # Gateway 和 MVC 不能共存
   main:
     web-application-type: reactive
+  # Redis 配置（Sa-Token 需要连接 Redis 验证 Token）
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
+    timeout: 5000
 server:
   port: 8101
 
@@ -37,3 +43,20 @@ knife4j:
       enabled: true
       # 指定聚合版本为 OpenAPI3
       version: openapi3
+
+# ====== Sa-Token 配置 ======
+sa-token:
+  # token 名称（同时也是 Cookie 名称和请求头名称）
+  token-name: satoken
+  # token 有效期（单位：秒），默认 30 天
+  timeout: 2592000
+  # token 最低活跃频率，-1 代表不限制（永不冻结）
+  active-timeout: -1
+  # 是否允许同一账号多地同时登录
+  is-concurrent: true
+  # 在多人登录同一账号时，是否共用一个 token
+  is-share: true
+  # token 风格（uuid: 标准UUID风格）
+  token-style: uuid
+  # 是否输出操作日志
+  is-log: true

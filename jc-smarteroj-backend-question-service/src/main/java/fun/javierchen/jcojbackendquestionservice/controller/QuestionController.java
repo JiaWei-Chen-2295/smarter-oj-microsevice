@@ -309,7 +309,7 @@ public class QuestionController {
      *
      * @return
      */
-    @PostMapping
+    @PostMapping("/submit/admin/page")
     public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,
                                                                          HttpServletRequest request
     ) {
