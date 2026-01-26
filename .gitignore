@@ -33,3 +33,6 @@ build/
 .vscode/
 application-local.yml
 /demo/
+env.local
+.env.prod
+.env

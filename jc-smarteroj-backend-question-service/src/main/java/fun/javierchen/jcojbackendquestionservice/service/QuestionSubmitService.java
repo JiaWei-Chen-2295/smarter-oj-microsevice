@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import fun.javierchen.jcojbackendmodel.dto.questionsubmit.QuestionSubmitAddRequest;
 import fun.javierchen.jcojbackendmodel.dto.questionsubmit.QuestionSubmitQueryRequest;
+import fun.javierchen.jcojbackendmodel.dto.questionsubmit.SubmitHeatmapRequest;
 import fun.javierchen.jcojbackendmodel.entity.QuestionSubmit;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
+import fun.javierchen.jcojbackendmodel.vo.SubmitHeatmapVO;
 
 /**
 * @author 16010
@@ -49,4 +51,13 @@ public interface QuestionSubmitService extends IService<QuestionSubmit> {
      * @return
      */
     Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, User loginUser);
+
+    /**
+     * 获取用户提交热力图数据
+     *
+     * @param userId  用户ID
+     * @param request 热力图请求参数
+     * @return 热力图数据
+     */
+    SubmitHeatmapVO getSubmitHeatmap(Long userId, SubmitHeatmapRequest request);
 }

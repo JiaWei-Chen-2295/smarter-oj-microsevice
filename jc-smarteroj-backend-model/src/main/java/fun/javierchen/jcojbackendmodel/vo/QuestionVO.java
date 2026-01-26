@@ -3,6 +3,7 @@ package fun.javierchen.jcojbackendmodel.vo;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import fun.javierchen.jcojbackendmodel.dto.question.CodeTemplate;
 import fun.javierchen.jcojbackendmodel.dto.question.JudgeConfig;
 import fun.javierchen.jcojbackendmodel.entity.Question;
 import lombok.Data;
@@ -57,6 +58,11 @@ public class QuestionVO {
     private Integer favourNum;
 
     /**
+     * 代码模板(JSON 对象)
+     */
+    private CodeTemplate codeTemplate;
+
+    /**
      * 创建用户 id
      */
     private Long userId;
@@ -93,6 +99,11 @@ public class QuestionVO {
             question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
         }
 
+        CodeTemplate codeTemplate = questionVO.getCodeTemplate();
+        if (codeTemplate != null) {
+            question.setCodeTemplate(JSONUtil.toJsonStr(codeTemplate));
+        }
+
         return question;
     }
 
@@ -116,6 +127,10 @@ public class QuestionVO {
         String judgeConfig = question.getJudgeConfig();
         if (StringUtils.isNotBlank(judgeConfig)) {
             questionVO.setJudgeConfig(JSONUtil.toBean(judgeConfig, JudgeConfig.class));
+        }
+        String codeTemplateStr = question.getCodeTemplate();
+        if (StringUtils.isNotBlank(codeTemplateStr)) {
+            questionVO.setCodeTemplate(JSONUtil.toBean(codeTemplateStr, CodeTemplate.class));
         }
         return questionVO;
     }

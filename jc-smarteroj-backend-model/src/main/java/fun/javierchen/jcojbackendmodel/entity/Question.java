@@ -1,6 +1,7 @@
 package fun.javierchen.jcojbackendmodel.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -61,6 +62,11 @@ public class Question {
     private String answer;
 
     /**
+     * 代码模板(JSON 对象)
+     */
+    private String codeTemplate;
+
+    /**
      * 收藏数
      */
     private Integer favourNum;
@@ -69,6 +75,9 @@ public class Question {
      * 创建用户 id
      */
     private Long userId;
+
+    @TableField(exist = false)
+    private Long questionSetId;
 
     /**
      * 创建时间

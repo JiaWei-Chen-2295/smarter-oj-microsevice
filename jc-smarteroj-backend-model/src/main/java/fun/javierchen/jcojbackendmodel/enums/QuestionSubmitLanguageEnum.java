@@ -12,8 +12,7 @@ public enum QuestionSubmitLanguageEnum {
 
     JAVA("java", "java"),
     CPLUSPLUS("cpp", "cpp"),
-    GOLANG("go", "go"),
-    JAVASCRIPT("js", "js")
+    PYTHON("python", "python")
     ;
 
     public static QuestionSubmitLanguageEnum getEnumByValue(String value) {

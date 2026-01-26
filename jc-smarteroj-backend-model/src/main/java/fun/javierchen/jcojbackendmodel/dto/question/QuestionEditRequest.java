@@ -50,5 +50,10 @@ public class QuestionEditRequest implements Serializable {
      */
     private String answer;
 
+    /**
+     * 代码模板(可选)
+     */
+    private CodeTemplate codeTemplate;
+
     private static final long serialVersionUID = 1L;
 }

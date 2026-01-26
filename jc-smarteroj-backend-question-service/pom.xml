@@ -80,7 +80,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -93,9 +93,8 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>
-                        fun.javierchen.jcsmarterojbackendquestionservice.JcSmarterojBackendQuestionServiceApplication
+                        fun.javierchen.jcojbackendquestionservice.JcSmarterojBackendQuestionServiceApplication
                     </mainClass>
-                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>

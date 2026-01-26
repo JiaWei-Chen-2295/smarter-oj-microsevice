@@ -47,4 +47,17 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- 关闭 Spring Boot 打包（共享库不需要） -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

@@ -1,6 +1,7 @@
 package fun.javierchen.jcojbackendserverclient;
 
 
+import fun.javierchen.jcojbackendmodel.dto.questionsubmit.JudgeRequest;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -11,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface JudgeFeignClient {
     /**
      * 判题服务
-     * @param questionSubmitId
-     * @return
+     * @param judgeRequest 判题请求（包含题目提交ID和登录用户信息）
+     * @return 判题结果VO
      */
     @PostMapping("/do")
-    QuestionSubmitVO doJudge(@RequestBody Long questionSubmitId, @RequestBody User loginUser);
+    QuestionSubmitVO doJudge(@RequestBody JudgeRequest judgeRequest);
 }

@@ -1,6 +1,7 @@
 package fun.javierchen.jcojbackendquestionservice.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,6 +14,7 @@ import fun.javierchen.jcojbackendcommon.exception.ThrowUtils;
 import fun.javierchen.jcojbackendcommon.utils.SqlUtils;
 import fun.javierchen.jcojbackendmodel.dto.question.JudgeCase;
 import fun.javierchen.jcojbackendmodel.dto.question.JudgeConfig;
+import fun.javierchen.jcojbackendmodel.dto.question.CodeTemplate;
 import fun.javierchen.jcojbackendmodel.dto.question.QuestionQueryRequest;
 import fun.javierchen.jcojbackendmodel.entity.Question;
 import fun.javierchen.jcojbackendmodel.entity.User;
@@ -55,10 +57,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         String judgeConfig = question.getJudgeConfig();
         String judgeCase = question.getJudgeCase();
         String answer = question.getAnswer();
+        String codeTemplate = question.getCodeTemplate();
 
         // 创建时候参数不能为空
         if (add) {
             ThrowUtils.throwIf(StringUtils.isAnyBlank(title, content, tags), ErrorCode.PARAMS_ERROR);
+            // 如果没有提供代码模板，使用默认模板
+            if (StringUtils.isBlank(codeTemplate)) {
+                CodeTemplate defaultTemplate = CodeTemplate.getDefaultTemplate();
+                question.setCodeTemplate(JSONUtil.toJsonStr(defaultTemplate));
+            }
         }
         if (StringUtils.isNotBlank(title) && title.length() > 80) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目过长或者未指定");
@@ -77,6 +85,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         }
         if (StringUtils.isNotBlank(tags) && tags.length() > 8192) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目标签过多");
+        }
+        if (StringUtils.isNotBlank(codeTemplate) && codeTemplate.length() > 8192) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "代码模板长度过长");
         }
 
     }

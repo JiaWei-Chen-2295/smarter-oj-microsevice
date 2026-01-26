@@ -14,6 +14,7 @@
             <result property="judgeConfig" column="judgeConfig" jdbcType="VARCHAR"/>
             <result property="judgeCase" column="judgeCase" jdbcType="VARCHAR"/>
             <result property="answer" column="answer" jdbcType="VARCHAR"/>
+            <result property="codeTemplate" column="codeTemplate" jdbcType="VARCHAR"/>
             <result property="favourNum" column="favourNum" jdbcType="INTEGER"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
@@ -25,7 +26,7 @@
         id,title,content,
         tags,submitNum,acceptedNum,
         judgeConfig,judgeCase,answer,
-        favourNum,userId,createTime,
+        codeTemplate,favourNum,userId,createTime,
         updateTime,isDelete
     </sql>
 </mapper>

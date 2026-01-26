@@ -24,4 +24,19 @@
         judgeInfo,createTime,updateTime,
         isDelete,outputResult
     </sql>
+
+    <!-- 统计用户每日提交次数（仅成功的提交 status=2） -->
+    <select id="selectDailySubmitCount" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT(createTime, '%Y-%m-%d') as submitDate,
+            COUNT(*) as submitCount
+        FROM question_submit
+        WHERE userId = #{userId}
+          AND isDelete = 0
+          AND status = 2
+          AND createTime >= #{startDate}
+          AND createTime &lt; #{endDate}
+        GROUP BY DATE_FORMAT(createTime, '%Y-%m-%d')
+        ORDER BY submitDate ASC
+    </select>
 </mapper>

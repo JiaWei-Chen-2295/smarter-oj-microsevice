@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fun.javierchen.jcojbackendquestionservice.mapper.QuestionSetMapper">
+
+    <resultMap id="BaseResultMap" type="fun.javierchen.jcojbackendmodel.entity.QuestionSet">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
+        <result property="questionNum" column="questionNum" jdbcType="INTEGER"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="favourNum" column="favourNum" jdbcType="INTEGER"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,description,tags,questionNum,userId,favourNum,createTime,updateTime,isDelete
+    </sql>
+
+    <select id="getQuestionsByQuestionSetId" resultType="fun.javierchen.jcojbackendmodel.entity.Question">
+        SELECT q.id, q.title, q.content, q.tags, q.submitNum, q.acceptedNum, q.judgeConfig, q.judgeCase,
+               q.answer, q.favourNum, q.userId, q.createTime, q.updateTime, q.isDelete
+        FROM question q
+        JOIN question_set_item qsi ON q.id = qsi.questionId
+        WHERE qsi.questionSetId = #{questionSetId}
+          AND qsi.isDelete = 0
+          AND q.isDelete = 0
+        ORDER BY qsi.sortOrder ASC, qsi.createTime ASC
+    </select>
+
+    <resultMap id="QuestionWithSetIdMap" type="fun.javierchen.jcojbackendmodel.entity.Question">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
+        <result property="submitNum" column="submitNum" jdbcType="INTEGER"/>
+        <result property="acceptedNum" column="acceptedNum" jdbcType="INTEGER"/>
+        <result property="judgeConfig" column="judgeConfig" jdbcType="VARCHAR"/>
+        <result property="judgeCase" column="judgeCase" jdbcType="VARCHAR"/>
+        <result property="answer" column="answer" jdbcType="VARCHAR"/>
+        <result property="favourNum" column="favourNum" jdbcType="INTEGER"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <result property="questionSetId" column="questionSetId" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="listQuestionMapByQuestionSetIds" resultMap="QuestionWithSetIdMap">
+        SELECT qsi.questionSetId,
+               q.id, q.title, q.content, q.tags, q.submitNum, q.acceptedNum, q.judgeConfig, q.judgeCase,
+               q.answer, q.favourNum, q.userId, q.createTime, q.updateTime, q.isDelete
+        FROM question q
+        JOIN question_set_item qsi ON q.id = qsi.questionId
+        WHERE qsi.questionSetId IN
+        <foreach collection="collection" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND qsi.isDelete = 0
+          AND q.isDelete = 0
+        ORDER BY qsi.sortOrder ASC, qsi.createTime ASC
+    </select>
+</mapper>
+

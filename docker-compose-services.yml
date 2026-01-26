@@ -1,0 +1,186 @@
+# ======================================
+# 业务微服务 Docker Compose 配置
+# 包含：Gateway、User、Question、Judge、Post、Room 服务
+# ======================================
+# 使用前提：
+#   1. 必须先启动基础依赖服务（docker-compose up -d）
+#   2. 确保 MySQL、Redis、Nacos 已正常运行
+# ======================================
+# 使用方式：
+#   启动所有服务: docker-compose -f docker-compose-services.yml up -d
+#   启动单个服务: docker-compose -f docker-compose-services.yml up -d gateway
+#   停止所有服务: docker-compose -f docker-compose-services.yml down
+#   查看日志: docker-compose -f docker-compose-services.yml logs -f [服务名]
+#   重启服务: docker-compose -f docker-compose-services.yml restart [服务名]
+# ======================================
+
+version: '3.8'
+
+services:
+  # 网关服务
+  gateway:
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    container_name: smarteroj-gateway
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - TZ=Asia/Shanghai
+      # Docker 容器 UTF-8 编码配置
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+    working_dir: /app
+    volumes:
+      - ./docker/jars/gateway.jar:/app/app.jar
+    command: ["java","-jar","/app/app.jar"]
+    ports:
+      - "8101:8101"
+    networks:
+      - smarteroj-network
+
+  # 用户服务
+  user-service:
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    container_name: smarteroj-user-service
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123456}
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - ALIYUN_ACCESS_KEY=${ALIYUN_ACCESS_KEY:-YOUR_ACCESS_KEY}
+      - ALIYUN_SECRET=${ALIYUN_SECRET:-YOUR_SECRET}
+      - ALIYUN_SIGN_NAME=${ALIYUN_SIGN_NAME:-YOUR_SIGN_NAME}
+      - ALIYUN_TEMPLATE_CODE=${ALIYUN_TEMPLATE_CODE:-YOUR_TEMPLATE_CODE}
+      - CAPTCHA_ID=${CAPTCHA_ID:-ac46d9e9bd532607cf2b1ba39075053e}
+      - CAPTCHA_KEY=${CAPTCHA_KEY:-f72c10ffca635a9e4af69d4c2e5a41f5}
+      - TZ=Asia/Shanghai
+      # Docker 容器 UTF-8 编码配置
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+    working_dir: /app
+    volumes:
+      - ./docker/jars/user-service.jar:/app/app.jar
+    command: ["java","-jar","/app/app.jar"]
+    ports:
+      - "8201:8201"
+    networks:
+      - smarteroj-network
+
+  # 题目服务
+  question-service:
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    container_name: smarteroj-question-service
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123456}
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - TZ=Asia/Shanghai
+      # Docker 容器 UTF-8 编码配置
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+    working_dir: /app
+    volumes:
+      - ./docker/jars/question-service.jar:/app/app.jar
+    command: ["java","-jar","/app/app.jar"]
+    ports:
+      - "8202:8202"
+    networks:
+      - smarteroj-network
+
+  # 判题服务
+  judge-service:
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    container_name: smarteroj-judge-service
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123456}
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - TZ=Asia/Shanghai
+      # Docker 容器 UTF-8 编码配置
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+    working_dir: /app
+    volumes:
+      - ./docker/jars/judge-service.jar:/app/app.jar
+    command: ["java","-jar","/app/app.jar"]
+    ports:
+      - "8203:8203"
+    networks:
+      - smarteroj-network
+
+  # 帖子服务
+  post-service:
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    container_name: smarteroj-post-service
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123456}
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - TZ=Asia/Shanghai
+      # Docker 容器 UTF-8 编码配置
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+    working_dir: /app
+    volumes:
+      - ./docker/jars/post-service.jar:/app/app.jar
+    command: ["java","-jar","/app/app.jar"]
+    ports:
+      - "8204:8204"
+    networks:
+      - smarteroj-network
+
+  # 房间服务
+  room-service:
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    container_name: smarteroj-room-service
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123456}
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - ROOM_AUTH_SECRET=${ROOM_AUTH_SECRET:-change-me-in-production}
+      - TZ=Asia/Shanghai
+      # Docker 容器 UTF-8 编码配置
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+    working_dir: /app
+    volumes:
+      - ./docker/jars/room-service.jar:/app/app.jar
+    command: ["java","-jar","/app/app.jar"]
+    ports:
+      - "8205:8205"
+    networks:
+      - smarteroj-network
+
+# 使用已存在的网络（由 docker-compose.yml 创建）
+networks:
+  smarteroj-network:
+    external: true
+    name: smarteroj-network

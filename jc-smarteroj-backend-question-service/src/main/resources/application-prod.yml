@@ -1,0 +1,102 @@
+codesandbox:
+  type: 'remote'
+  remote-url: 'http://code-sandbox:8080/executeCode'
+
+feign:
+  okhttp:
+    enabled: true
+
+spring:
+  application:
+    name: jc-smarteroj-backend-question-service
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  session:
+    store-type: redis
+    timeout: 259200000
+
+  cloud:
+    nacos:
+      serverAddr: nacos:8848
+      username: ${NACOS_USERNAME:nacos}
+      password: ${NACOS_PASSWORD:nacos}
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/smarter_oj_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&connectionCollation=utf8mb4_unicode_ci
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:root123456}
+    hikari:
+      connection-init-sql: "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+
+  redis:
+    database: 1
+    host: redis
+    port: 6379
+    timeout: 5000
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  main:
+    web-application-type: servlet
+  # Jackson 序列化配置
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: false
+  # HTTP 响应编码配置（已废弃，移除）
+
+server:
+  address: 0.0.0.0
+  port: 8202
+  servlet:
+    context-path: /api/question
+    session:
+      cookie:
+        max-age: 2592000
+        path: '/api'
+      timeout: 25292000
+    # Servlet 编码配置
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  # Tomcat 编码配置
+  tomcat:
+    uri-encoding: UTF-8
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+knife4j:
+  enable: true
+  openapi:
+    title: "题目服务接口文档"
+    version: 1.0
+    group:
+      default:
+        api-rule: package
+        api-rule-resources:
+          - fun.javierchen.jcojbackendquestionservice.controller
+
+sa-token:
+  token-name: satoken
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false

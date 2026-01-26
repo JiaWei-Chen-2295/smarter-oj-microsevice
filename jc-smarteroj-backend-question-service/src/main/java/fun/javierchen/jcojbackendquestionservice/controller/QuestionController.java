@@ -1,6 +1,7 @@
 package fun.javierchen.jcojbackendquestionservice.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -14,21 +15,29 @@ import fun.javierchen.jcojbackendcommon.exception.ThrowUtils;
 import fun.javierchen.jcojbackendmodel.dto.question.*;
 import fun.javierchen.jcojbackendmodel.dto.questionsubmit.QuestionSubmitAddRequest;
 import fun.javierchen.jcojbackendmodel.dto.questionsubmit.QuestionSubmitQueryRequest;
+import fun.javierchen.jcojbackendmodel.dto.questionsubmit.SubmitHeatmapRequest;
 import fun.javierchen.jcojbackendmodel.entity.Question;
 import fun.javierchen.jcojbackendmodel.entity.QuestionSubmit;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
 import fun.javierchen.jcojbackendmodel.vo.QuestionVO;
+import fun.javierchen.jcojbackendmodel.vo.SubmitHeatmapVO;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSubmitService;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 题目接口
@@ -38,6 +47,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/")
 @Slf4j
+@Tag(name = "题目接口")
 public class QuestionController {
 
     @Resource
@@ -48,6 +58,27 @@ public class QuestionController {
 
     @Resource
     private QuestionSubmitService questionSubmitService;
+
+    /**
+     * 热力图缓存（简单内存缓存，生产环境建议使用Redis）
+     * key: userId_startDate_endDate
+     * value: CacheEntry(data, expireTime)
+     */
+    private final Map<String, CacheEntry> heatmapCache = new ConcurrentHashMap<>();
+
+    private static class CacheEntry {
+        SubmitHeatmapVO data;
+        long expireTime;
+
+        CacheEntry(SubmitHeatmapVO data, long expireTime) {
+            this.data = data;
+            this.expireTime = expireTime;
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() > expireTime;
+        }
+    }
 
     // region 增删改查
 
@@ -83,6 +114,11 @@ public class QuestionController {
         List<JudgeCase> judgeCases = questionAddRequest.getJudgeCase();
         if (judgeCases != null) {
             question.setJudgeCase(JSONUtil.toJsonStr(judgeCases));
+        }
+
+        CodeTemplate codeTemplate = questionAddRequest.getCodeTemplate();
+        if (codeTemplate != null) {
+            question.setCodeTemplate(JSONUtil.toJsonStr(codeTemplate));
         }
 
         boolean result = questionService.save(question);
@@ -133,6 +169,12 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
+
+        CodeTemplate codeTemplate = questionUpdateRequest.getCodeTemplate();
+        if (codeTemplate != null) {
+            question.setCodeTemplate(JSONUtil.toJsonStr(codeTemplate));
+        }
+
         // 参数校验
         questionService.validQuestion(question, false);
         long id = questionUpdateRequest.getId();
@@ -262,6 +304,11 @@ public class QuestionController {
             question.setJudgeCase(JSONUtil.toJsonStr(judgeCase));
         }
 
+        CodeTemplate codeTemplate = questionEditRequest.getCodeTemplate();
+        if (codeTemplate != null) {
+            question.setCodeTemplate(JSONUtil.toJsonStr(codeTemplate));
+        }
+
         // 参数校验
         questionService.validQuestion(question, false);
         User loginUser = userFeignClient.getLoginUser(request);
@@ -334,5 +381,85 @@ public class QuestionController {
         QueryWrapper<QuestionSubmit> queryWrapper = new QueryWrapper<>();
         List<QuestionSubmit> list = questionSubmitService.list(queryWrapper);
         return ResultUtils.success(list);
+    }
+
+    /**
+     * 获取当前用户提交热力图数据
+     *
+     * @param request HTTP请求
+     * @param startDate 开始日期（可选，格式：yyyy-MM-dd，默认为最近365天）
+     * @param endDate 结束日期（可选，格式：yyyy-MM-dd，默认为今天）
+     * @return 热力图数据
+     */
+    @GetMapping("/submit/heatmap")
+    @Operation(summary = "获取用户提交热力图", description = "获取当前登录用户在指定时间范围内的题目提交热力图数据，类似LeetCode/GitHub的贡献图")
+    public BaseResponse<SubmitHeatmapVO> getSubmitHeatmap(
+            HttpServletRequest request,
+            @Parameter(description = "开始日期，格式：yyyy-MM-dd（可选，默认为最近365天）", example = "2024-01-01")
+            @RequestParam(required = false) String startDate,
+            @Parameter(description = "结束日期，格式：yyyy-MM-dd（可选，默认为今天）", example = "2024-12-31")
+            @RequestParam(required = false) String endDate) {
+        // 获取当前登录用户
+        User loginUser = userFeignClient.getLoginUser(request);
+        Long userId = loginUser.getId();
+
+        // 构建请求参数
+        SubmitHeatmapRequest heatmapRequest = new SubmitHeatmapRequest();
+        if (startDate != null) {
+            heatmapRequest.setStartDate(DateUtil.parse(startDate, "yyyy-MM-dd"));
+        }
+        if (endDate != null) {
+            heatmapRequest.setEndDate(DateUtil.parse(endDate, "yyyy-MM-dd"));
+        }
+
+        // 生成缓存key
+        String cacheKey = buildCacheKey(userId, heatmapRequest);
+        
+        // 检查是否包含今天的数据，包含则不缓存今天的部分
+        boolean includeToday = isIncludeToday(heatmapRequest);
+        
+        // 尝试从缓存获取
+        if (!includeToday) {
+            CacheEntry cached = heatmapCache.get(cacheKey);
+            if (cached != null && !cached.isExpired()) {
+                log.debug("从缓存获取热力图数据, userId: {}", userId);
+                return ResultUtils.success(cached.data);
+            }
+        }
+
+        // 查询数据
+        SubmitHeatmapVO result = questionSubmitService.getSubmitHeatmap(userId, heatmapRequest);
+
+        // 缓存结果（历史数据缓存1小时）
+        if (!includeToday) {
+            long expireTime = System.currentTimeMillis() + 60 * 60 * 1000; // 1小时
+            heatmapCache.put(cacheKey, new CacheEntry(result, expireTime));
+            log.debug("缓存热力图数据, userId: {}, 过期时间: {}", userId, expireTime);
+        }
+
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 构建缓存key
+     */
+    private String buildCacheKey(Long userId, SubmitHeatmapRequest request) {
+        String start = request.getStartDate() != null ? 
+                DateUtil.format(request.getStartDate(), "yyyyMMdd") : "default";
+        String end = request.getEndDate() != null ? 
+                DateUtil.format(request.getEndDate(), "yyyyMMdd") : "default";
+        return userId + "_" + start + "_" + end;
+    }
+
+    /**
+     * 判断查询范围是否包含今天
+     */
+    private boolean isIncludeToday(SubmitHeatmapRequest request) {
+        Date today = DateUtil.beginOfDay(new Date());
+        Date endDate = request.getEndDate();
+        if (endDate == null) {
+            return true; // 默认包含今天
+        }
+        return !DateUtil.beginOfDay(endDate).before(today);
     }
 }

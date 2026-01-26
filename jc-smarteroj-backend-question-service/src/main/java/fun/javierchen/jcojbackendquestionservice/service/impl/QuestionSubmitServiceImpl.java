@@ -1,6 +1,7 @@
 package fun.javierchen.jcojbackendquestionservice.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,6 +12,8 @@ import fun.javierchen.jcojbackendcommon.constant.CommonConstant;
 import fun.javierchen.jcojbackendcommon.enums.QuestionSubmitLanguageEnum;
 import fun.javierchen.jcojbackendcommon.exception.BusinessException;
 import fun.javierchen.jcojbackendcommon.utils.SqlUtils;
+import fun.javierchen.jcojbackendmodel.dto.questionsubmit.JudgeRequest;
+import fun.javierchen.jcojbackendmodel.dto.questionsubmit.SubmitHeatmapRequest;
 import fun.javierchen.jcojbackendmodel.enums.QuestionSubmitStatusEnum;
 import fun.javierchen.jcojbackendquestionservice.mapper.QuestionSubmitMapper;
 import fun.javierchen.jcojbackendmodel.dto.questionsubmit.JudgeInfo;
@@ -21,6 +24,7 @@ import fun.javierchen.jcojbackendmodel.entity.QuestionSubmit;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
 import fun.javierchen.jcojbackendmodel.vo.QuestionVO;
+import fun.javierchen.jcojbackendmodel.vo.SubmitHeatmapVO;
 import fun.javierchen.jcojbackendmodel.vo.UserVO;
 
 import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
@@ -35,9 +39,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -94,7 +96,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         }
         Long id = questionSubmit.getId();
         CompletableFuture.runAsync(() -> {
-            judgeService.doJudge(id, loginUser);
+            JudgeRequest judgeRequest = new JudgeRequest();
+            judgeRequest.setQuestionSubmitId(id);
+            judgeRequest.setLoginUser(loginUser);
+            judgeService.doJudge(judgeRequest);
         });
         return id;
     }
@@ -192,6 +197,106 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         ).collect(Collectors.toList());
         questionSubmitVOPage.setRecords(questionSubmitVOList);
         return questionSubmitVOPage;
+    }
+
+    @Override
+    public SubmitHeatmapVO getSubmitHeatmap(Long userId, SubmitHeatmapRequest request) {
+        // 参数校验：如果未传日期，默认查询最近365天
+        Date endDate = request.getEndDate();
+        Date startDate = request.getStartDate();
+        if (endDate == null) {
+            endDate = DateUtil.endOfDay(new Date());
+        } else {
+            // 确保 endDate 是当天的结束时间
+            endDate = DateUtil.endOfDay(endDate);
+        }
+        if (startDate == null) {
+            startDate = DateUtil.offsetDay(endDate, -364);
+        }
+        // 确保 startDate 是当天的开始时间
+        startDate = DateUtil.beginOfDay(startDate);
+
+        // 查询每日提交统计
+        List<Map<String, Object>> dailyStats = baseMapper.selectDailySubmitCount(userId, startDate, endDate);
+
+        // 构建热力图数据
+        List<SubmitHeatmapVO.DailySubmitCount> heatmapData = new ArrayList<>();
+        long totalSubmissions = 0;
+        int maxDailySubmissions = 0;
+
+        // 将查询结果转换为Map，方便查找
+        Map<String, Integer> dateCountMap = new HashMap<>();
+        for (Map<String, Object> stat : dailyStats) {
+            String date = (String) stat.get("submitDate");
+            Integer count = ((Number) stat.get("submitCount")).intValue();
+            dateCountMap.put(date, count);
+            totalSubmissions += count;
+            maxDailySubmissions = Math.max(maxDailySubmissions, count);
+        }
+
+        // 生成日期范围内的所有日期（包含没有提交的日期，记为0）
+        Date current = startDate;
+        while (!current.after(endDate)) {
+            String dateStr = DateUtil.format(current, "yyyy-MM-dd");
+            SubmitHeatmapVO.DailySubmitCount dailyCount = new SubmitHeatmapVO.DailySubmitCount();
+            dailyCount.setDate(dateStr);
+            dailyCount.setCount(dateCountMap.getOrDefault(dateStr, 0));
+            heatmapData.add(dailyCount);
+            current = DateUtil.offsetDay(current, 1);
+        }
+
+        // 计算连续提交天数
+        int currentStreak = 0;
+        int maxStreak = 0;
+        int tempStreak = 0;
+        String today = DateUtil.format(new Date(), "yyyy-MM-dd");
+        String yesterday = DateUtil.format(DateUtil.offsetDay(new Date(), -1), "yyyy-MM-dd");
+
+        // 从最新日期开始计算当前连续天数
+        for (int i = heatmapData.size() - 1; i >= 0; i--) {
+            SubmitHeatmapVO.DailySubmitCount dc = heatmapData.get(i);
+            if (dc.getCount() > 0) {
+                // 当前连续：从今天或昨天开始连续
+                if (currentStreak == 0 && (dc.getDate().equals(today) || dc.getDate().equals(yesterday))) {
+                    currentStreak = 1;
+                    // 继续往前查找
+                    for (int j = i - 1; j >= 0; j--) {
+                        if (heatmapData.get(j).getCount() > 0) {
+                            String prevDate = DateUtil.format(DateUtil.offsetDay(DateUtil.parse(heatmapData.get(j + 1).getDate()), -1), "yyyy-MM-dd");
+                            if (heatmapData.get(j).getDate().equals(prevDate)) {
+                                currentStreak++;
+                            } else {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        // 计算最长连续天数
+        for (SubmitHeatmapVO.DailySubmitCount dc : heatmapData) {
+            if (dc.getCount() > 0) {
+                tempStreak++;
+                maxStreak = Math.max(maxStreak, tempStreak);
+            } else {
+                tempStreak = 0;
+            }
+        }
+
+        // 构建返回结果
+        SubmitHeatmapVO result = new SubmitHeatmapVO();
+        result.setHeatmapData(heatmapData);
+        result.setTotalSubmissions(totalSubmissions);
+        result.setMaxDailySubmissions(maxDailySubmissions);
+        result.setActiveDays(dateCountMap.size());
+        result.setCurrentStreak(currentStreak);
+        result.setMaxStreak(maxStreak);
+
+        return result;
     }
 
 }

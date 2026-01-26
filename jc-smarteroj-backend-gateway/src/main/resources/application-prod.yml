@@ -1,0 +1,71 @@
+spring:
+  cloud:
+    nacos:
+      serverAddr: nacos:8848
+      username: ${NACOS_USERNAME:nacos}
+      password: ${NACOS_PASSWORD:nacos}
+    gateway:
+      routes:
+        - id: jc-smarteroj-backend-user-service
+          uri: lb://jc-smarteroj-backend-user-service
+          predicates:
+            - Path=/api/user/**
+        - id: jc-smarteroj-backend-question-service
+          uri: lb://jc-smarteroj-backend-question-service
+          predicates:
+            - Path=/api/question/**,/api/questionSet/**
+          filters:
+            - RewritePath=/api/questionSet/(?<segment>.*), /api/question/questionSet/$\{segment}
+        - id: jc-smarteroj-backend-judge-service
+          uri: lb://jc-smarteroj-backend-judge-service
+          predicates:
+            - Path=/api/judge/**
+        - id: jc-smarteroj-backend-post-service
+          uri: lb://jc-smarteroj-backend-post-service
+          predicates:
+            - Path=/api/post/**
+        - id: jc-smarteroj-backend-room-service
+          uri: lb://jc-smarteroj-backend-room-service
+          predicates:
+            - Path=/api/room/**
+  application:
+    name: jc-smarteroj-backend-gateway
+  main:
+    web-application-type: reactive
+  redis:
+    database: 1
+    host: redis
+    port: 6379
+    timeout: 5000
+  # WebFlux 编码配置
+  codec:
+    max-in-memory-size: 10MB
+  # Jackson 配置（与 WebMVC 服务保持一致）
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: false
+
+server:
+  port: 8101
+
+knife4j:
+  gateway:
+    enabled: true
+    strategy: discover
+    discover:
+      enabled: true
+      version: openapi3
+
+sa-token:
+  token-name: satoken
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false

@@ -1,0 +1,24 @@
+package fun.javierchen.jcojbackendmodel.dto.room;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class RoomEditRequest implements Serializable {
+
+    private Long id;
+
+    private String name;
+
+    private String description;
+
+    private Integer mateNum;
+
+    private Integer status;
+
+    private String password;
+
+    private static final long serialVersionUID = 1L;
+}
+
