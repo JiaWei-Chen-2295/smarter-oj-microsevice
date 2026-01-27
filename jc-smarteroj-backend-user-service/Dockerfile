@@ -20,8 +20,8 @@ COPY jc-smarteroj-backend-user-service ./jc-smarteroj-backend-user-service
 # 构建项目
 RUN mvn clean package -pl jc-smarteroj-backend-user-service -am -Dmaven.test.skip=true
 
-# 运行阶段
-FROM ${DOCKER_REGISTRY}/library/eclipse-temurin:8-jre-jammy
+# 运行阶段 - 使用 AdoptOpenJDK OpenJ9（内存优化更好）
+FROM ${DOCKER_REGISTRY}/library/adoptopenjdk:8-jre-openj9
 
 # 设置 UTF-8 locale（解决 Docker 容器中文乱码）
 ENV LANG=C.UTF-8 \
@@ -36,5 +36,23 @@ COPY --from=build /app/jc-smarteroj-backend-user-service/target/*.jar app.jar
 # 暴露端口
 EXPOSE 8201
 
-# 启动命令（添加 JVM 编码参数）
-ENTRYPOINT ["java", "-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
+# 启动命令 - IBM OpenJ9 优化参数（极限内存环境）
+# -Xms: 初始堆内存 160MB
+# -Xmx: 最大堆内存 256MB（用户服务需要稍多内存）
+# -Xquickstart: 快速启动模式（适合微服务）
+# -Xshareclasses:none: 禁用共享类缓存（容器环境推荐）
+# -XX:+IdleTuningGcOnIdle: 空闲时压缩堆内存
+# -XX:+UseContainerSupport: 容器感知
+# -Dfile.encoding=UTF-8: 解决中文乱码
+ENTRYPOINT ["java", \
+    "-Xms160m", \
+    "-Xmx256m", \
+    "-Xquickstart", \
+    "-Xshareclasses:none", \
+    "-XX:+IdleTuningGcOnIdle", \
+    "-XX:+UseContainerSupport", \
+    "-Dfile.encoding=UTF-8", \
+    "-Dsun.jnu.encoding=UTF-8", \
+    "-jar", \
+    "-Dspring.profiles.active=prod", \
+    "app.jar"]

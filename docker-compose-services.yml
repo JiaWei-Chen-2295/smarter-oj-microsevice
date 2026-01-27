@@ -19,7 +19,7 @@ version: '3.8'
 services:
   # 网关服务
   gateway:
-    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/adoptopenjdk:8-jre-openj9
     container_name: smarteroj-gateway
     restart: always
     env_file:
@@ -32,19 +32,35 @@ services:
       # Docker 容器 UTF-8 编码配置
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
-      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
     working_dir: /app
     volumes:
       - ./docker/jars/gateway.jar:/app/app.jar
-    command: ["java","-jar","/app/app.jar"]
+    command:
+      - "java"
+      - "-Xms128m"
+      - "-Xmx192m"
+      - "-Xquickstart"
+      - "-Xshareclasses:none"
+      - "-XX:+IdleTuningGcOnIdle"
+      - "-XX:+UseContainerSupport"
+      - "-Dfile.encoding=UTF-8"
+      - "-Dsun.jnu.encoding=UTF-8"
+      - "-jar"
+      - "/app/app.jar"
     ports:
       - "8101:8101"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
     networks:
       - smarteroj-network
 
   # 用户服务
   user-service:
-    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/adoptopenjdk:8-jre-openj9
     container_name: smarteroj-user-service
     restart: always
     env_file:
@@ -64,19 +80,35 @@ services:
       # Docker 容器 UTF-8 编码配置
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
-      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
     working_dir: /app
     volumes:
       - ./docker/jars/user-service.jar:/app/app.jar
-    command: ["java","-jar","/app/app.jar"]
+    command:
+      - "java"
+      - "-Xms160m"
+      - "-Xmx256m"
+      - "-Xquickstart"
+      - "-Xshareclasses:none"
+      - "-XX:+IdleTuningGcOnIdle"
+      - "-XX:+UseContainerSupport"
+      - "-Dfile.encoding=UTF-8"
+      - "-Dsun.jnu.encoding=UTF-8"
+      - "-jar"
+      - "/app/app.jar"
     ports:
       - "8201:8201"
+    deploy:
+      resources:
+        limits:
+          memory: 320M
+        reservations:
+          memory: 160M
     networks:
       - smarteroj-network
 
   # 题目服务
   question-service:
-    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/adoptopenjdk:8-jre-openj9
     container_name: smarteroj-question-service
     restart: always
     env_file:
@@ -90,19 +122,37 @@ services:
       # Docker 容器 UTF-8 编码配置
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
-      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
     working_dir: /app
     volumes:
       - ./docker/jars/question-service.jar:/app/app.jar
-    command: ["java","-jar","/app/app.jar"]
+    command:
+      - "java"
+      - "-Xms160m"
+      - "-Xmx256m"
+      - "-Xquickstart"
+      - "-Xshareclasses:none"
+      - "-XX:+IdleTuningGcOnIdle"
+      - "-XX:+UseContainerSupport"
+      - "-Dfile.encoding=UTF-8"
+      - "-Dsun.jnu.encoding=UTF-8"
+      - "-jar"
+      - "/app/app.jar"
     ports:
       - "8202:8202"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          memory: 320M
+        reservations:
+          memory: 160M
     networks:
       - smarteroj-network
 
   # 判题服务
   judge-service:
-    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/adoptopenjdk:8-jre-openj9
     container_name: smarteroj-judge-service
     restart: always
     env_file:
@@ -116,19 +166,37 @@ services:
       # Docker 容器 UTF-8 编码配置
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
-      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
     working_dir: /app
     volumes:
       - ./docker/jars/judge-service.jar:/app/app.jar
-    command: ["java","-jar","/app/app.jar"]
+    command:
+      - "java"
+      - "-Xms128m"
+      - "-Xmx192m"
+      - "-Xquickstart"
+      - "-Xshareclasses:none"
+      - "-XX:+IdleTuningGcOnIdle"
+      - "-XX:+UseContainerSupport"
+      - "-Dfile.encoding=UTF-8"
+      - "-Dsun.jnu.encoding=UTF-8"
+      - "-jar"
+      - "/app/app.jar"
     ports:
       - "8203:8203"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
     networks:
       - smarteroj-network
 
   # 帖子服务
   post-service:
-    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/adoptopenjdk:8-jre-openj9
     container_name: smarteroj-post-service
     restart: always
     env_file:
@@ -142,19 +210,35 @@ services:
       # Docker 容器 UTF-8 编码配置
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
-      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
     working_dir: /app
     volumes:
       - ./docker/jars/post-service.jar:/app/app.jar
-    command: ["java","-jar","/app/app.jar"]
+    command:
+      - "java"
+      - "-Xms128m"
+      - "-Xmx192m"
+      - "-Xquickstart"
+      - "-Xshareclasses:none"
+      - "-XX:+IdleTuningGcOnIdle"
+      - "-XX:+UseContainerSupport"
+      - "-Dfile.encoding=UTF-8"
+      - "-Dsun.jnu.encoding=UTF-8"
+      - "-jar"
+      - "/app/app.jar"
     ports:
       - "8204:8204"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
     networks:
       - smarteroj-network
 
   # 房间服务
   room-service:
-    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/eclipse-temurin:8-jre-jammy
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/library/adoptopenjdk:8-jre-openj9
     container_name: smarteroj-room-service
     restart: always
     env_file:
@@ -169,13 +253,29 @@ services:
       # Docker 容器 UTF-8 编码配置
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
-      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
     working_dir: /app
     volumes:
       - ./docker/jars/room-service.jar:/app/app.jar
-    command: ["java","-jar","/app/app.jar"]
+    command:
+      - "java"
+      - "-Xms128m"
+      - "-Xmx192m"
+      - "-Xquickstart"
+      - "-Xshareclasses:none"
+      - "-XX:+IdleTuningGcOnIdle"
+      - "-XX:+UseContainerSupport"
+      - "-Dfile.encoding=UTF-8"
+      - "-Dsun.jnu.encoding=UTF-8"
+      - "-jar"
+      - "/app/app.jar"
     ports:
       - "8205:8205"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
     networks:
       - smarteroj-network
 

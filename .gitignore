@@ -36,3 +36,4 @@ application-local.yml
 env.local
 .env.prod
 .env
+/docker/jars/
