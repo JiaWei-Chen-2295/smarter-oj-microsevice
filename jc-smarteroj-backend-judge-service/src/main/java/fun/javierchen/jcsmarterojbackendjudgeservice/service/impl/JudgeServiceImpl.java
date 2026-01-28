@@ -29,7 +29,6 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 @Data
 public class JudgeServiceImpl implements JudgeService {
@@ -39,7 +38,6 @@ public class JudgeServiceImpl implements JudgeService {
 
     @Resource
     private QuestionFeignClient questionFeignClient;
-
 
     @Resource
     private JudgeManager judgeManager;
@@ -101,7 +99,6 @@ public class JudgeServiceImpl implements JudgeService {
         CodeSandBoxProxy codeSandBoxProxy = new CodeSandBoxProxy(codeSandBox);
         CodeSandBoxResponse codeSandBoxResponse = codeSandBoxProxy.runCode(request);
 
-
         // 根据沙箱结果判断
         List<String> outputList = codeSandBoxResponse.getOutputList();
         List<String> answerList = judgeCaseList.stream().map(JudgeCase::getOutput).collect(Collectors.toList());
@@ -109,7 +106,7 @@ public class JudgeServiceImpl implements JudgeService {
 
         JudgeContext judgeContext = new JudgeContext();
         judgeContext.setJudgeInfo(judgeInfoResponse);
-        judgeContext.setInputList(answerList);
+        judgeContext.setInputList(inputList);
         judgeContext.setOutputList(outputList);
         judgeContext.setJudgeCaseList(judgeCaseList);
         judgeContext.setQuestion(question);
@@ -123,13 +120,14 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitUpdate.setId(questionSubmitId);
         questionSubmitUpdate.setStatus(questionSubmitStatus.getValue());
         questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
-        questionSubmitUpdate.setOutputResult(JSONUtil.toJsonStr(answerList));
+        questionSubmitUpdate.setOutputResult(JSONUtil.toJsonStr(outputList));
         updateResult = questionFeignClient.updateQuestionSubmitById(questionSubmitUpdate);
         if (!updateResult) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新题目提交信息失败");
         }
 
         // 获取新的提交对象返回
-        return questionFeignClient.getQuestionSubmitVO(questionFeignClient.getQuestionSubmitById(questionSubmitId), loginUser);
+        return questionFeignClient.getQuestionSubmitVO(questionFeignClient.getQuestionSubmitById(questionSubmitId),
+                loginUser);
     }
 }

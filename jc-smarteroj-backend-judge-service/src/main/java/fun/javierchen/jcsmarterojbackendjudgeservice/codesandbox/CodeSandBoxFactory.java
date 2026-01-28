@@ -1,7 +1,7 @@
 package fun.javierchen.jcsmarterojbackendjudgeservice.codesandbox;
 
-
 import fun.javierchen.jcsmarterojbackendjudgeservice.codesandbox.impl.ExampleCodeSandBox;
+import fun.javierchen.jcsmarterojbackendjudgeservice.codesandbox.impl.Judge0CodeSandBox;
 import fun.javierchen.jcsmarterojbackendjudgeservice.codesandbox.impl.RemoteCodeSandBox;
 import fun.javierchen.jcsmarterojbackendjudgeservice.codesandbox.impl.ThirdPartCodeSandBox;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +24,17 @@ public class CodeSandBoxFactory {
     private final RemoteCodeSandBox remoteCodeSandBox;
     private final ThirdPartCodeSandBox thirdPartCodeSandBox;
     private final ExampleCodeSandBox exampleCodeSandBox;
+    private final Judge0CodeSandBox judge0CodeSandBox;
 
     private Map<String, CodeSandBox> codeSandBoxMap;
 
     @Autowired
-    public CodeSandBoxFactory(RemoteCodeSandBox remoteCodeSandBox, ThirdPartCodeSandBox thirdPartCodeSandBox, ExampleCodeSandBox exampleCodeSandBox) {
+    public CodeSandBoxFactory(RemoteCodeSandBox remoteCodeSandBox, ThirdPartCodeSandBox thirdPartCodeSandBox,
+            ExampleCodeSandBox exampleCodeSandBox, Judge0CodeSandBox judge0CodeSandBox) {
         this.remoteCodeSandBox = remoteCodeSandBox;
         this.thirdPartCodeSandBox = thirdPartCodeSandBox;
         this.exampleCodeSandBox = exampleCodeSandBox;
+        this.judge0CodeSandBox = judge0CodeSandBox;
     }
 
     @PostConstruct
@@ -40,6 +43,7 @@ public class CodeSandBoxFactory {
         codeSandBoxMap.put("remote", remoteCodeSandBox);
         codeSandBoxMap.put("third-part", thirdPartCodeSandBox);
         codeSandBoxMap.put("example", exampleCodeSandBox);
+        codeSandBoxMap.put("judge0", judge0CodeSandBox);
     }
 
     public CodeSandBox getCodeSandBox() {

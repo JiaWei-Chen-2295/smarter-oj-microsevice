@@ -1,8 +1,11 @@
 # 公共配置文件
 # @author JavierChen
+
 codesandbox:
-  type: 'remote'
-  remote-url: 'http://localhost:8080/executeCode'
+  type: 'judge0'
+  remote-url: 'http://localhost:2358'
+  # 填入您在 Judge0 中生成的 AUTHN_TOKEN。如果 Judge0 未开启认证，此处留空即可。
+  api-key: ''
 
 feign:
   okhttp:

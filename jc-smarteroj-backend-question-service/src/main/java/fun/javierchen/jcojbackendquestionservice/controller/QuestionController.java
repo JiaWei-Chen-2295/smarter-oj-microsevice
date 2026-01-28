@@ -90,7 +90,8 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/add")
-    public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest,
+            HttpServletRequest request) {
         if (questionAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -203,7 +204,6 @@ public class QuestionController {
         return ResultUtils.success(questionService.getQuestionVO(question));
     }
 
-
     /**
      * 根据 id 获取
      *
@@ -246,7 +246,7 @@ public class QuestionController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                               HttpServletRequest request) {
+            HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         // 限制爬虫
@@ -265,7 +265,7 @@ public class QuestionController {
      */
     @PostMapping("/my/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                                 HttpServletRequest request) {
+            HttpServletRequest request) {
         if (questionQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -280,7 +280,6 @@ public class QuestionController {
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
     }
 
-
     /**
      * 编辑（用户）
      *
@@ -289,7 +288,8 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/edit")
-    public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest,
+            HttpServletRequest request) {
         if (questionEditRequest == null || questionEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -328,7 +328,8 @@ public class QuestionController {
     public BaseResponse<Page<Question>> getQuestionList(@RequestBody QuestionQueryRequest questionQueryRequest) {
         long current = questionQueryRequest.getCurrent();
         long pageSize = questionQueryRequest.getPageSize();
-        Page<Question> page = questionService.page(new Page<>(current, pageSize), questionService.getQueryWrapper(questionQueryRequest));
+        Page<Question> page = questionService.page(new Page<>(current, pageSize),
+                questionService.getQueryWrapper(questionQueryRequest));
         return ResultUtils.success(page);
     }
 
@@ -341,7 +342,7 @@ public class QuestionController {
      */
     @PostMapping("/submit")
     public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
-                                               HttpServletRequest request) {
+            HttpServletRequest request) {
         if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -357,13 +358,14 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/submit/admin/page")
-    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,
-                                                                         HttpServletRequest request
-    ) {
+    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(
+            @RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,
+            HttpServletRequest request) {
         long current = questionSubmitQueryRequest.getCurrent();
         long pageSize = questionSubmitQueryRequest.getPageSize();
         User loginUser = userFeignClient.getLoginUser(request);
-        Page<QuestionSubmit> page = questionSubmitService.page(new Page<>(current, pageSize), questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
+        Page<QuestionSubmit> page = questionSubmitService.page(new Page<>(current, pageSize),
+                questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
         return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(page, loginUser));
     }
 
@@ -373,7 +375,18 @@ public class QuestionController {
         if (questionSubmit == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        return ResultUtils.success(QuestionSubmitVO.objToVo(questionSubmit));
+        QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
+        // 获取题目信息，填充测试用例以供前端对比
+        Long questionId = questionSubmit.getQuestionId();
+        Question question = questionService.getById(questionId);
+        if (question != null) {
+            String judgeCaseStr = question.getJudgeCase();
+            if (cn.hutool.core.util.StrUtil.isNotBlank(judgeCaseStr)) {
+                questionSubmitVO.setJudgeCaseList(
+                        JSONUtil.toList(judgeCaseStr, JudgeCase.class));
+            }
+        }
+        return ResultUtils.success(questionSubmitVO);
     }
 
     @GetMapping("/submit/admin/list")
@@ -386,19 +399,17 @@ public class QuestionController {
     /**
      * 获取当前用户提交热力图数据
      *
-     * @param request HTTP请求
+     * @param request   HTTP请求
      * @param startDate 开始日期（可选，格式：yyyy-MM-dd，默认为最近365天）
-     * @param endDate 结束日期（可选，格式：yyyy-MM-dd，默认为今天）
+     * @param endDate   结束日期（可选，格式：yyyy-MM-dd，默认为今天）
      * @return 热力图数据
      */
     @GetMapping("/submit/heatmap")
     @Operation(summary = "获取用户提交热力图", description = "获取当前登录用户在指定时间范围内的题目提交热力图数据，类似LeetCode/GitHub的贡献图")
     public BaseResponse<SubmitHeatmapVO> getSubmitHeatmap(
             HttpServletRequest request,
-            @Parameter(description = "开始日期，格式：yyyy-MM-dd（可选，默认为最近365天）", example = "2024-01-01")
-            @RequestParam(required = false) String startDate,
-            @Parameter(description = "结束日期，格式：yyyy-MM-dd（可选，默认为今天）", example = "2024-12-31")
-            @RequestParam(required = false) String endDate) {
+            @Parameter(description = "开始日期，格式：yyyy-MM-dd（可选，默认为最近365天）", example = "2024-01-01") @RequestParam(required = false) String startDate,
+            @Parameter(description = "结束日期，格式：yyyy-MM-dd（可选，默认为今天）", example = "2024-12-31") @RequestParam(required = false) String endDate) {
         // 获取当前登录用户
         User loginUser = userFeignClient.getLoginUser(request);
         Long userId = loginUser.getId();
@@ -414,10 +425,10 @@ public class QuestionController {
 
         // 生成缓存key
         String cacheKey = buildCacheKey(userId, heatmapRequest);
-        
+
         // 检查是否包含今天的数据，包含则不缓存今天的部分
         boolean includeToday = isIncludeToday(heatmapRequest);
-        
+
         // 尝试从缓存获取
         if (!includeToday) {
             CacheEntry cached = heatmapCache.get(cacheKey);
@@ -444,10 +455,8 @@ public class QuestionController {
      * 构建缓存key
      */
     private String buildCacheKey(Long userId, SubmitHeatmapRequest request) {
-        String start = request.getStartDate() != null ? 
-                DateUtil.format(request.getStartDate(), "yyyyMMdd") : "default";
-        String end = request.getEndDate() != null ? 
-                DateUtil.format(request.getEndDate(), "yyyyMMdd") : "default";
+        String start = request.getStartDate() != null ? DateUtil.format(request.getStartDate(), "yyyyMMdd") : "default";
+        String end = request.getEndDate() != null ? DateUtil.format(request.getEndDate(), "yyyyMMdd") : "default";
         return userId + "_" + start + "_" + end;
     }
 

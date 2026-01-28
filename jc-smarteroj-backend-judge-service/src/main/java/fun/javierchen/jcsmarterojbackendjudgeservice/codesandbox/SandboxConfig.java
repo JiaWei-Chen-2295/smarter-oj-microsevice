@@ -12,4 +12,7 @@ public class SandboxConfig {
 
     @Value("${codesandbox.remote-url}")
     private String remoteUrl;
+
+    @Value("${codesandbox.api-key:}")
+    private String apiKey;
 }

@@ -1,6 +1,7 @@
 package fun.javierchen.jcojbackendmodel.vo;
 
 import cn.hutool.json.JSONUtil;
+import fun.javierchen.jcojbackendmodel.dto.question.JudgeCase;
 import fun.javierchen.jcojbackendmodel.dto.questionsubmit.JudgeInfo;
 import fun.javierchen.jcojbackendmodel.entity.QuestionSubmit;
 import lombok.Data;
@@ -59,6 +60,11 @@ public class QuestionSubmitVO {
     private String outputResult;
 
     /**
+     * 题目测试用例
+     */
+    private java.util.List<JudgeCase> judgeCaseList;
+
+    /**
      * 包装类转对象
      *
      * @param questionSubmitVO
@@ -90,7 +96,7 @@ public class QuestionSubmitVO {
         BeanUtils.copyProperties(questionSubmit, questionSubmitVO);
         String judgeInfoStr = questionSubmit.getJudgeInfo();
         JudgeInfo judgeInfo = JSONUtil.toBean(judgeInfoStr, JudgeInfo.class);
-       questionSubmitVO.setJudgeInfo(judgeInfo);
+        questionSubmitVO.setJudgeInfo(judgeInfo);
         return questionSubmitVO;
     }
 }

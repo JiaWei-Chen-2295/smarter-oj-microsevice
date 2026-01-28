@@ -46,7 +46,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 **输出：**
 ```
 0
-```', '["简单"]', 0, 0, '{"timeLimit":10000,"memoryLimit":1000,"stackLimit":1000}', '[{"input":"1 2","output":"3"},{"input":"-5 10","output":"5"},{"input":"0 0","output":"0"},{"input":"100 200","output":"300"}]', 'def answer():
+```', '["简单"]', 0, 0, '{"timeLimit":10000,"memoryLimit":128000,"stackLimit":128000}', '[{"input":"1 2","output":"3"},{"input":"-5 10","output":"5"},{"input":"0 0","output":"0"},{"input":"100 200","output":"300"}]', 'def answer():
     return []', 0, 1903672737810321410, '2025-03-26 22:38:15', '2026-01-25 14:14:54', 1, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        // TODO: 在此编写你的代码\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    // TODO: 在此编写你的代码\\n    \\n    return 0;\\n}","python":"# TODO: 在此编写你的代码\\n"}');
 INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, acceptedNum, judgeConfig, judgeCase, answer, favourNum, userId, createTime, updateTime, isDelete, codeTemplate) VALUES (1906, '三数之和', '# 三数之和
 
@@ -108,7 +108,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 ## 提示
 
 - 使用排序 + 双指针解决
-- 注意去重处理', '["数组","双指针","中等"]', 0, 0, '{"timeLimit":4000,"memoryLimit":256,"stackLimit":64}', '[{"input":"6\\n-1 0 1 2 -1 -4","output":"-1 -1 2\\n-1 0 1"},{"input":"3\\n0 0 0","output":"0 0 0"},{"input":"3\\n1 2 3","output":""}]', 'def fourSum(nums: list[int], target: int) -> list[list[int]]:
+- 注意去重处理', '["数组","双指针","中等"]', 0, 0, '{"timeLimit":4000,"memoryLimit":256000,"stackLimit":64000}', '[{"input":"6\\n-1 0 1 2 -1 -4","output":"-1 -1 2\\n-1 0 1"},{"input":"3\\n0 0 0","output":"0 0 0"},{"input":"3\\n1 2 3","output":""}]', 'def fourSum(nums: list[int], target: int) -> list[list[int]]:
     nums.sort()
     res = []
     for i in range(len(nums)-3):
@@ -181,7 +181,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 **输出：**
 ```
 1000
-```', '["栈","简单"]', 0, 0, '{"timeLimit":10000,"memoryLimit":1000,"stackLimit":1000}', '[{"input":"3 4","output":"7"},{"input":"-10 20","output":"10"},{"input":"999 1","output":"1000"},{"input":"0 0","output":"0"}]', 'HAHAHA', 0, 1903672737810321410, '2025-03-27 15:20:23', '2026-01-25 14:18:23', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        // TODO: 在此编写你的代码\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    // TODO: 在此编写你的代码\\n    \\n    return 0;\\n}","python":"# TODO: 在此编写你的代码\\n"}');
+```', '["栈","简单"]', 0, 0, '{"timeLimit":10000,"memoryLimit":128000,"stackLimit":128000}', '[{"input":"3 4","output":"7"},{"input":"-10 20","output":"10"},{"input":"999 1","output":"1000"},{"input":"0 0","output":"0"}]', 'HAHAHA', 0, 1903672737810321410, '2025-03-27 15:20:23', '2026-01-25 14:18:23', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        // TODO: 在此编写你的代码\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    // TODO: 在此编写你的代码\\n    \\n    return 0;\\n}","python":"# TODO: 在此编写你的代码\\n"}');
 INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, acceptedNum, judgeConfig, judgeCase, answer, favourNum, userId, createTime, updateTime, isDelete, codeTemplate) VALUES (1908, '两数之和', '# 两数之和
 
 ## 题目描述
@@ -246,7 +246,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 ## 提示
 
-- 使用哈希表可以在 O(n) 时间复杂度内解决', '["数组","哈希表","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128,"stackLimit":64}', '[{"input":"4 9\\n2 7 11 15","output":"0 1"},{"input":"3 6\\n3 2 4","output":"1 2"},{"input":"2 6\\n3 3","output":"0 1"}]', 'def twoSum(nums: list[int], target: int) -> list[int]:
+- 使用哈希表可以在 O(n) 时间复杂度内解决', '["数组","哈希表","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"4 9\\n2 7 11 15","output":"0 1"},{"input":"3 6\\n3 2 4","output":"1 2"},{"input":"2 6\\n3 3","output":"0 1"}]', 'def twoSum(nums: list[int], target: int) -> list[int]:
     hashmap = {}
     for i, num in enumerate(nums):
         complement = target - num
@@ -319,7 +319,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 ## 提示
 
 - 可以使用递归或迭代
-- 时间复杂度 O(n + m)', '["链表","递归","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128,"stackLimit":64}', '[{"input":"[1,2,4]\\n[1,3,4]","output":"[1,1,2,3,4,4]"},{"input":"[]\\n[]","output":"[]"}]', 'class ListNode:
+- 时间复杂度 O(n + m)', '["链表","递归","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"[1,2,4]\\n[1,3,4]","output":"[1,1,2,3,4,4]"},{"input":"[]\\n[]","output":"[]"}]', 'class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
@@ -408,7 +408,7 @@ a
 - 方法1：中心扩展法 O(n²)
 - 方法2：动态规划 O(n²)
 - 方法3：Manacher算法 O(n)
-- 注意处理奇数和偶数长度的回文串', '["字符串","动态规划","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":64,"stackLimit":32}', '[{"input":"\\"babad\\"","output":"\\"bab\\""},{"input":"\\"cbbd\\"","output":"\\"bb\\""}]', 'def longestPalindrome(s: str) -> str:
+- 注意处理奇数和偶数长度的回文串', '["字符串","动态规划","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":64000,"stackLimit":32000}', '[{"input":"\\"babad\\"","output":"\\"bab\\""},{"input":"\\"cbbd\\"","output":"\\"bb\\""}]', 'def longestPalindrome(s: str) -> str:
     if not s:
         return ""
     res = s[0]
@@ -496,7 +496,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 方法1：深度优先搜索（DFS）递归
 - 方法2：广度优先搜索（BFS）层序遍历
-- 递归公式：depth = max(leftDepth, rightDepth) + 1', '["树","深度优先搜索","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":64,"stackLimit":32}', '[{"input":"[3,9,20,null,null,15,7]","output":"3"},{"input":"[]","output":"0"}]', 'class TreeNode:
+- 递归公式：depth = max(leftDepth, rightDepth) + 1', '["树","深度优先搜索","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":64000,"stackLimit":32000}', '[{"input":"[3,9,20,null,null,15,7]","output":"3"},{"input":"[]","output":"0"}]', 'class TreeNode:
     def __init__(self, val=0, left=None, right=None):
         self.val = val
         self.left = left
@@ -567,7 +567,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 - 方法1：哈希表 + 排序 O(n log n)
 - 方法2：哈希表 + 堆 O(n log k)
 - 方法3：桶排序 O(n)
-- 要求时间复杂度优于 O(n log n)', '["堆","哈希表","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":128,"stackLimit":64}', '[{"input":"[1,1,1,2,2,3]\\n2","output":"[1,2]"},{"input":"[1]\\n1","output":"[1]"}]', 'import heapq
+- 要求时间复杂度优于 O(n log n)', '["堆","哈希表","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"[1,1,1,2,2,3]\\n2","output":"[1,2]"},{"input":"[1]\\n1","output":"[1]"}]', 'import heapq
 from collections import Counter
 
 def topKFrequent(nums: list[int], k: int) -> list[int]:
@@ -638,7 +638,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 - 方法1：动态规划 O(n²)
   - dp[i] 表示以 nums[i] 结尾的最长递增子序列长度
 - 方法2：二分查找 + 贪心 O(n log n)
-  - 维护一个递增数组 tails', '["动态规划","数组","中等"]', 0, 0, '{"timeLimit":3000,"memoryLimit":128,"stackLimit":64}', '[{"input":"8\\n10 9 2 5 3 7 101 18","output":"4"},{"input":"7\\n0 1 0 3 2 3 7","output":"4"},{"input":"1\\n1","output":"1"}]', 'def lengthOfLIS(nums: list[int]) -> int:
+  - 维护一个递增数组 tails', '["动态规划","数组","中等"]', 0, 0, '{"timeLimit":3000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"8\\n10 9 2 5 3 7 101 18","output":"4"},{"input":"7\\n0 1 0 3 2 3 7","output":"4"},{"input":"1\\n1","output":"1"}]', 'def lengthOfLIS(nums: list[int]) -> int:
     dp = [1] * len(nums)
     for i in range(len(nums)):
         for j in range(i):
@@ -713,7 +713,7 @@ true
 
 - 贪心算法
 - 维护当前能到达的最远位置
-- 时间复杂度 O(n)', '["贪心算法","数组","中等"]', 0, 0, '{"timeLimit":1000,"memoryLimit":64,"stackLimit":32}', '[{"input":"[2,3,1,1,4]","output":"true"},{"input":"[3,2,1,0,4]","output":"false"}]', 'def canJump(nums: list[int]) -> bool:
+- 时间复杂度 O(n)', '["贪心算法","数组","中等"]', 0, 0, '{"timeLimit":1000,"memoryLimit":64000,"stackLimit":32000}', '[{"input":"[2,3,1,1,4]","output":"true"},{"input":"[3,2,1,0,4]","output":"false"}]', 'def canJump(nums: list[int]) -> bool:
     max_reach = 0
     for i in range(len(nums)):
         if i > max_reach:
@@ -786,7 +786,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 使用回溯算法（Backtracking）
 - 时间复杂度 O(n × n!)
-- 需要标记已使用的元素', '["回溯算法","递归","中等"]', 0, 0, '{"timeLimit":3000,"memoryLimit":256,"stackLimit":64}', '[{"input":"[1,2,3]","output":"[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]"},{"input":"[0]","output":"[[0]]"}]', 'def permute(nums: list[int]) -> list[list[int]]:
+- 需要标记已使用的元素', '["回溯算法","递归","中等"]', 0, 0, '{"timeLimit":3000,"memoryLimit":256000,"stackLimit":64000}', '[{"input":"[1,2,3]","output":"[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]"},{"input":"[0]","output":"[[0]]"}]', 'def permute(nums: list[int]) -> list[list[int]]:
     def backtrack(path, used):
         if len(path) == len(nums):
             res.append(path.copy())
@@ -870,7 +870,7 @@ true
 - 拓扑排序问题
 - 方法1：DFS 检测环
 - 方法2：BFS + 入度统计
-- 如果存在环，则无法完成', '["拓扑排序","图论","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":128,"stackLimit":64}', '[{"input":"2\\n[[1,0]]","output":"true"},{"input":"2\\n[[1,0],[0,1]]","output":"false"}]', 'def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:
+- 如果存在环，则无法完成', '["拓扑排序","图论","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"2\\n[[1,0]]","output":"true"},{"input":"2\\n[[1,0],[0,1]]","output":"false"}]', 'def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:
     graph = [[] for _ in range(numCourses)]
     in_degree = [0] * numCourses
     for a, b in prerequisites:
@@ -953,7 +953,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 动态规划：dp[i] = max(dp[i-1] + nums[i], nums[i])
 - 也可以用 Kadane 算法，空间复杂度 O(1)
-', '["动态规划","Kadane算法","入门算法","简单"]', 0, 0, '{"timeLimit":300000,"memoryLimit":10000000000000,"stackLimit":1000000}', '[{"input":"9 -2 1 -3 4 -1 2 1 -5 4","output":"6"},{"input":"1 5","output":"5"},{"input":"5 -1 -2 -3 -4 -5","output":"-1"},{"input":"5 1 2 3 4 5","output":"15"}]', 'public class Main {
+', '["动态规划","Kadane算法","入门算法","简单"]', 0, 0, '{"timeLimit":300000,"memoryLimit":512000,"stackLimit":512000}', '[{"input":"9 -2 1 -3 4 -1 2 1 -5 4","output":"6"},{"input":"1 5","output":"5"},{"input":"5 -1 -2 -3 -4 -5","output":"-1"},{"input":"5 1 2 3 4 5","output":"15"}]', 'public class Main {
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println(0);
@@ -1038,7 +1038,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 方法1：迭代法，使用三个指针 prev, curr, next
 - 方法2：递归法
-- 时间复杂度 O(n)，空间复杂度 O(1)（迭代）或 O(n)（递归）', '["链表","双指针","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256,"stackLimit":64}', '[{"input":"5\\n1 2 3 4 5","output":"5 4 3 2 1"},{"input":"2\\n1 2","output":"2 1"},{"input":"0\\n","output":""}]', 'class ListNode:
+- 时间复杂度 O(n)，空间复杂度 O(1)（迭代）或 O(n)（递归）', '["链表","双指针","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256000,"stackLimit":64000}', '[{"input":"5\\n1 2 3 4 5","output":"5 4 3 2 1"},{"input":"2\\n1 2","output":"2 1"},{"input":"0\\n","output":""}]', 'class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
@@ -1140,7 +1140,7 @@ true
 - 使用栈（Stack）数据结构
 - 遇到左括号入栈
 - 遇到右括号时，检查栈顶是否为对应的左括号
-- 最后检查栈是否为空', '["栈","字符串","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128,"stackLimit":64}', '[{"input":"()","output":"true"},{"input":"()[]{}","output":"true"},{"input":"(]","output":"false"},{"input":"([)]","output":"false"},{"input":"{[]}","output":"true"}]', 'def isValid(s: str) -> bool:
+- 最后检查栈是否为空', '["栈","字符串","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"()","output":"true"},{"input":"()[]{}","output":"true"},{"input":"(]","output":"false"},{"input":"([)]","output":"false"},{"input":"{[]}","output":"true"}]', 'def isValid(s: str) -> bool:
     stack = []
     mapping = {")": "(", "}": "{", "]": "["}
     for char in s:
@@ -1215,7 +1215,7 @@ null
 
 - 使用广度优先搜索（BFS）
 - 借助队列实现
-- 需要记录每层的节点数量', '["树","广度优先搜索","中等"]', 0, 0, '{"timeLimit":10000,"memoryLimit":256,"stackLimit":64}', '[{"input":"[3,9,20,null,null,15,7]","output":"[[3],[9,20],[15,7]]"}]', 'from collections import deque
+- 需要记录每层的节点数量', '["树","广度优先搜索","中等"]', 0, 0, '{"timeLimit":10000,"memoryLimit":256000,"stackLimit":64000}', '[{"input":"[3,9,20,null,null,15,7]","output":"[[3],[9,20],[15,7]]"}]', 'from collections import deque
 from typing import List, Optional
 
 class TreeNode:
@@ -1327,7 +1327,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 - 分区函数是关键
 - 可以选择第一个、最后一个或随机元素作为 pivot
 - 注意处理重复元素
-- 最坏情况时间复杂度 O(n²)，平均 O(n log n)', '["排序","分治","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256,"stackLimit":128}', '[{"input":"4\\n5 2 3 1","output":"1 2 3 5"},{"input":"5\\n3 1 4 1 5","output":"1 1 3 4 5"},{"input":"1\\n9","output":"9"},{"input":"6\\n-3 5 0 -1 8 2","output":"-3 -1 0 2 5 8"}]', 'def quickSort(nums, low, high):
+- 最坏情况时间复杂度 O(n²)，平均 O(n log n)', '["排序","分治","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256000,"stackLimit":128000}', '[{"input":"4\\n5 2 3 1","output":"1 2 3 5"},{"input":"5\\n3 1 4 1 5","output":"1 1 3 4 5"},{"input":"1\\n9","output":"9"},{"input":"6\\n-3 5 0 -1 8 2","output":"-3 -1 0 2 5 8"}]', 'def quickSort(nums, low, high):
     if low < high:
         pi = partition(nums, low, high)
         quickSort(nums, low, pi - 1)
@@ -1409,7 +1409,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 - 经典二分查找模板
 - left = 0, right = n - 1
 - 每次取 mid = (left + right) / 2
-- 根据 nums[mid] 与 target 的大小关系调整边界', '["二分查找","数组","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128,"stackLimit":64}', '[{"input":"[-1,0,3,5,9,12] 9","output":"4"},{"input":"[-1,0,3,5,9,12] 2","output":"-1"}]', 'def search(nums, target):
+- 根据 nums[mid] 与 target 的大小关系调整边界', '["二分查找","数组","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"[-1,0,3,5,9,12] 9","output":"4"},{"input":"[-1,0,3,5,9,12] 2","output":"-1"}]', 'def search(nums, target):
     left, right = 0, len(nums) - 1
 
     while left <= right:
@@ -1480,7 +1480,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 先按起始位置排序
 - 遍历合并相邻的重叠区间
-- 时间复杂度 O(n log n)', '["数组","排序","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256,"stackLimit":64}', '[{"input":"[[1,3],[2,6],[8,10],[15,18]]","output":"[[1,6],[8,10],[15,18]]"}]', 'def merge(intervals):
+- 时间复杂度 O(n log n)', '["数组","排序","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256000,"stackLimit":64000}', '[{"input":"[[1,3],[2,6],[8,10],[15,18]]","output":"[[1,6],[8,10],[15,18]]"}]', 'def merge(intervals):
     if not intervals:
         return []
 
@@ -1545,7 +1545,7 @@ get 2
 - 使用哈希表 + 双向链表
 - 哈希表保证 O(1) 查找
 - 双向链表维护访问顺序
-- 时间复杂度：get 和 put 都是 O(1)', '["设计","哈希表","链表","困难"]', 0, 0, '{"timeLimit":3000,"memoryLimit":512,"stackLimit":128}', '[{"input":"capacity=2, put(1,1), put(2,2), get(1), put(3,3), get(2)","output":"1, -1"}]', 'class Node:
+- 时间复杂度：get 和 put 都是 O(1)', '["设计","哈希表","链表","困难"]', 0, 0, '{"timeLimit":3000,"memoryLimit":512000,"stackLimit":128000}', '[{"input":"capacity=2, put(1,1), put(2,2), get(1), put(3,3), get(2)","output":"1, -1"}]', 'class Node:
     def __init__(self, key=0, value=0):
         self.key = key
         self.value = value
@@ -1645,7 +1645,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 - 方法1：深度优先搜索（DFS）
 - 方法2：广度优先搜索（BFS）
 - 方法3：并查集
-- 遍历每个陆地，标记连通的陆地', '["深度优先搜索","广度优先搜索","并查集","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256,"stackLimit":64}', '[{"input":"[[\\"1\\",\\"1\\",\\"1\\",\\"1\\",\\"0\\"],[\\"1\\",\\"1\\",\\"0\\",\\"1\\",\\"0\\"],[\\"1\\",\\"1\\",\\"0\\",\\"0\\",\\"0\\"],[\\"0\\",\\"0\\",\\"0\\",\\"0\\",\\"0\\"]]","output":"1"}]', 'def numIslands(grid):
+- 遍历每个陆地，标记连通的陆地', '["深度优先搜索","广度优先搜索","并查集","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256000,"stackLimit":64000}', '[{"input":"[[\\"1\\",\\"1\\",\\"1\\",\\"1\\",\\"0\\"],[\\"1\\",\\"1\\",\\"0\\",\\"1\\",\\"0\\"],[\\"1\\",\\"1\\",\\"0\\",\\"0\\",\\"0\\"],[\\"0\\",\\"0\\",\\"0\\",\\"0\\",\\"0\\"]]","output":"1"}]', 'def numIslands(grid):
     if not grid:
         return 0
 
@@ -1726,7 +1726,7 @@ getMin
 
 - 使用辅助栈存储最小值
 - 或者每个节点同时存储当前最小值
-- 所有操作时间复杂度 O(1)', '["栈","设计","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128,"stackLimit":64}', '[{"input":"push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()","output":"-3, 0, -2"}]', 'class MinStack:
+- 所有操作时间复杂度 O(1)', '["栈","设计","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":128000,"stackLimit":64000}', '[{"input":"push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()","output":"-3, 0, -2"}]', 'class MinStack:
     def __init__(self):
         self.stack = []
         self.min_stack = []
@@ -1812,7 +1812,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 - 方法1：排序 O(n log n)
 - 方法2：小顶堆 O(n log k)
 - 方法3：快速选择 O(n) 平均情况
-- 推荐使用堆或快速选择', '["堆","分治","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256,"stackLimit":64}', '[{"input":"[3,2,1,5,6,4] 2","output":"5"},{"input":"[3,2,3,1,2,4,5,5,6] 4","output":"4"}]', 'import heapq
+- 推荐使用堆或快速选择', '["堆","分治","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256000,"stackLimit":64000}', '[{"input":"[3,2,1,5,6,4] 2","output":"5"},{"input":"[3,2,3,1,2,4,5,5,6] 4","output":"4"}]', 'import heapq
 
 def findKthLargest(nums, k):
     return heapq.nlargest(k, nums)[-1]', 0, 1903672737810321410, '2025-12-01 12:45:00', '2026-01-25 15:08:37', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        // TODO: 在此编写你的代码\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    // TODO: 在此编写你的代码\\n    \\n    return 0;\\n}","python":"# TODO: 在此编写你的代码\\n"}');
@@ -1892,7 +1892,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 可以使用递归（但效率低）
 - 推荐使用动态规划或迭代
-- 空间复杂度可以优化到 O(1)', '["数学","递归","动态规划","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256,"stackLimit":128}', '[{"input":"5","output":"5"},{"input":"10","output":"55"},{"input":"0","output":"0"},{"input":"1","output":"1"},{"input":"20","output":"6765"}]', '动态规划或递归实现', 0, 1, '2026-01-25 13:51:13', '2026-01-25 14:22:08', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int n = sc.nextInt();\\n        // TODO: 计算斐波那契数列的第n项\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int n;\\n    cin >> n;\\n    // TODO: 计算斐波那契数列的第n项\\n    \\n    return 0;\\n}","python":"n = int(input())\\n# TODO: 计算斐波那契数列的第n项\\n"}');
+- 空间复杂度可以优化到 O(1)', '["数学","递归","动态规划","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256000,"stackLimit":128000}', '[{"input":"5","output":"5"},{"input":"10","output":"55"},{"input":"0","output":"0"},{"input":"1","output":"1"},{"input":"20","output":"6765"}]', '动态规划或递归实现', 0, 1, '2026-01-25 13:51:13', '2026-01-25 14:22:08', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int n = sc.nextInt();\\n        // TODO: 计算斐波那契数列的第n项\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int n;\\n    cin >> n;\\n    // TODO: 计算斐波那契数列的第n项\\n    \\n    return 0;\\n}","python":"n = int(input())\\n# TODO: 计算斐波那契数列的第n项\\n"}');
 INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, acceptedNum, judgeConfig, judgeCase, answer, favourNum, userId, createTime, updateTime, isDelete, codeTemplate) VALUES (1985166201437286432, '最大公约数', '# 最大公约数 (GCD)
 
 ## 题目描述
@@ -1967,7 +1967,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 使用欧几里得算法（辗转相除法）
 - gcd(a, b) = gcd(b, a mod b)
-- 递归终止条件：b = 0 时，返回 a', '["数学","递归","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256,"stackLimit":128}', '[{"input":"12 8","output":"4"},{"input":"100 50","output":"50"},{"input":"17 19","output":"1"},{"input":"1071 462","output":"21"},{"input":"1000000 500000","output":"500000"}]', '欧几里得算法（辗转相除法）', 0, 1, '2026-01-25 13:51:31', '2026-01-25 14:22:24', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int a = sc.nextInt();\\n        int b = sc.nextInt();\\n        // TODO: 计算最大公约数\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int a, b;\\n    cin >> a >> b;\\n    // TODO: 计算最大公约数\\n    \\n    return 0;\\n}","python":"a, b = map(int, input().split())\\n# TODO: 计算最大公约数\\n"}');
+- 递归终止条件：b = 0 时，返回 a', '["数学","递归","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256000,"stackLimit":128000}', '[{"input":"12 8","output":"4"},{"input":"100 50","output":"50"},{"input":"17 19","output":"1"},{"input":"1071 462","output":"21"},{"input":"1000000 500000","output":"500000"}]', '欧几里得算法（辗转相除法）', 0, 1, '2026-01-25 13:51:31', '2026-01-25 14:22:24', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int a = sc.nextInt();\\n        int b = sc.nextInt();\\n        // TODO: 计算最大公约数\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int a, b;\\n    cin >> a >> b;\\n    // TODO: 计算最大公约数\\n    \\n    return 0;\\n}","python":"a, b = map(int, input().split())\\n# TODO: 计算最大公约数\\n"}');
 INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, acceptedNum, judgeConfig, judgeCase, answer, favourNum, userId, createTime, updateTime, isDelete, codeTemplate) VALUES (1985166201437286433, '数组排序', '# 数组排序
 
 ## 题目描述
@@ -2039,7 +2039,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 
 - 可以使用快速排序、归并排序、堆排序等
 - 也可以直接使用语言内置的排序函数
-- 注意处理重复元素和负数', '["数组","排序","简单"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256,"stackLimit":128}', '[{"input":"5\\n3 1 4 1 5","output":"1 1 3 4 5"},{"input":"3\\n9 2 7","output":"2 7 9"},{"input":"1\\n42","output":"42"},{"input":"6\\n-5 0 3 -2 8 1","output":"-5 -2 0 1 3 8"}]', '使用快速排序、归并排序或内置排序函数', 0, 1, '2026-01-25 13:51:53', '2026-01-25 14:29:38', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int n = sc.nextInt();\\n        int[] arr = new int[n];\\n        for (int i = 0; i < n; i++) {\\n            arr[i] = sc.nextInt();\\n        }\\n        // TODO: 对数组进行排序并输出\\n        \\n    }\\n}","cpp":"#include <iostream>\\n#include <algorithm>\\nusing namespace std;\\n\\nint main() {\\n    int n;\\n    cin >> n;\\n    int arr[n];\\n    for (int i = 0; i < n; i++) {\\n        cin >> arr[i];\\n    }\\n    // TODO: 对数组进行排序并输出\\n    \\n    return 0;\\n}","python":"n = int(input())\\narr = list(map(int, input().split()))\\n# TODO: 对数组进行排序并输出\\n"}');
+- 注意处理重复元素和负数', '["数组","排序","简单"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256000,"stackLimit":128000}', '[{"input":"5\\n3 1 4 1 5","output":"1 1 3 4 5"},{"input":"3\\n9 2 7","output":"2 7 9"},{"input":"1\\n42","output":"42"},{"input":"6\\n-5 0 3 -2 8 1","output":"-5 -2 0 1 3 8"}]', '使用快速排序、归并排序或内置排序函数', 0, 1, '2026-01-25 13:51:53', '2026-01-25 14:29:38', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int n = sc.nextInt();\\n        int[] arr = new int[n];\\n        for (int i = 0; i < n; i++) {\\n            arr[i] = sc.nextInt();\\n        }\\n        // TODO: 对数组进行排序并输出\\n        \\n    }\\n}","cpp":"#include <iostream>\\n#include <algorithm>\\nusing namespace std;\\n\\nint main() {\\n    int n;\\n    cin >> n;\\n    int arr[n];\\n    for (int i = 0; i < n; i++) {\\n        cin >> arr[i];\\n    }\\n    // TODO: 对数组进行排序并输出\\n    \\n    return 0;\\n}","python":"n = int(input())\\narr = list(map(int, input().split()))\\n# TODO: 对数组进行排序并输出\\n"}');
 INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, acceptedNum, judgeConfig, judgeCase, answer, favourNum, userId, createTime, updateTime, isDelete, codeTemplate) VALUES (1985166201437286434, '回文数判断', '# 回文数判断
 
 ## 题目描述
@@ -2116,7 +2116,7 @@ true
 
 - 方法1：转换为字符串判断
 - 方法2：反转数字的后半部分进行比较
-- 注意边界情况：负数、个位数、末尾为0的数', '["数学","字符串","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256,"stackLimit":128}', '[{"input":"121","output":"true"},{"input":"-121","output":"false"},{"input":"10","output":"false"},{"input":"12321","output":"true"},{"input":"0","output":"true"}]', '将数字反转或转为字符串判断', 0, 1, '2026-01-25 13:52:45', '2026-01-25 14:31:36', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int x = sc.nextInt();\\n        // TODO: 判断是否为回文数\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int x;\\n    cin >> x;\\n    // TODO: 判断是否为回文数\\n    \\n    return 0;\\n}","python":"x = int(input())\\n# TODO: 判断是否为回文数\\n"}');
+- 注意边界情况：负数、个位数、末尾为0的数', '["数学","字符串","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256000,"stackLimit":128000}', '[{"input":"121","output":"true"},{"input":"-121","output":"false"},{"input":"10","output":"false"},{"input":"12321","output":"true"},{"input":"0","output":"true"}]', '将数字反转或转为字符串判断', 0, 1, '2026-01-25 13:52:45', '2026-01-25 14:31:36', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int x = sc.nextInt();\\n        // TODO: 判断是否为回文数\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int x;\\n    cin >> x;\\n    // TODO: 判断是否为回文数\\n    \\n    return 0;\\n}","python":"x = int(input())\\n# TODO: 判断是否为回文数\\n"}');
 INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, acceptedNum, judgeConfig, judgeCase, answer, favourNum, userId, createTime, updateTime, isDelete, codeTemplate) VALUES (1985166201437286435, '二分查找', '# 二分查找
 
 ## 题目描述
@@ -2197,7 +2197,7 @@ INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, accepte
 - 二分查找的标准模板题
 - left = 0, right = n - 1
 - 每次比较 nums[mid] 和 target
-- 注意边界条件和循环终止条件', '["数组","二分查找","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256,"stackLimit":128}', '[{"input":"5 9\\n-1 0 3 5 9","output":"4"},{"input":"5 2\\n-1 0 3 5 9","output":"-1"},{"input":"1 5\\n5","output":"0"},{"input":"6 0\\n-5 -2 0 3 7 10","output":"2"}]', '使用二分查找算法', 0, 1, '2026-01-25 13:53:36', '2026-01-25 14:32:43', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int n = sc.nextInt();\\n        int target = sc.nextInt();\\n        int[] nums = new int[n];\\n        for (int i = 0; i < n; i++) {\\n            nums[i] = sc.nextInt();\\n        }\\n        // TODO: 使用二分查找\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int n, target;\\n    cin >> n >> target;\\n    int nums[n];\\n    for (int i = 0; i < n; i++) {\\n        cin >> nums[i];\\n    }\\n    // TODO: 使用二分查找\\n    \\n    return 0;\\n}","python":"n, target = map(int, input().split())\\nnums = list(map(int, input().split()))\\n# TODO: 使用二分查找\\n"}');
+- 注意边界条件和循环终止条件', '["数组","二分查找","简单"]', 0, 0, '{"timeLimit":1000,"memoryLimit":256000,"stackLimit":128000}', '[{"input":"5 9\\n-1 0 3 5 9","output":"4"},{"input":"5 2\\n-1 0 3 5 9","output":"-1"},{"input":"1 5\\n5","output":"0"},{"input":"6 0\\n-5 -2 0 3 7 10","output":"2"}]', '使用二分查找算法', 0, 1, '2026-01-25 13:53:36', '2026-01-25 14:32:43', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        int n = sc.nextInt();\\n        int target = sc.nextInt();\\n        int[] nums = new int[n];\\n        for (int i = 0; i < n; i++) {\\n            nums[i] = sc.nextInt();\\n        }\\n        // TODO: 使用二分查找\\n        \\n    }\\n}","cpp":"#include <iostream>\\nusing namespace std;\\n\\nint main() {\\n    int n, target;\\n    cin >> n >> target;\\n    int nums[n];\\n    for (int i = 0; i < n; i++) {\\n        cin >> nums[i];\\n    }\\n    // TODO: 使用二分查找\\n    \\n    return 0;\\n}","python":"n, target = map(int, input().split())\\nnums = list(map(int, input().split()))\\n# TODO: 使用二分查找\\n"}');
 INSERT INTO smarter_oj_db.question (id, title, content, tags, submitNum, acceptedNum, judgeConfig, judgeCase, answer, favourNum, userId, createTime, updateTime, isDelete, codeTemplate) VALUES (1985166201437286436, '最长公共子序列', '# 最长公共子序列 (LCS)
 
 ## 题目描述
@@ -2284,4 +2284,4 @@ fedcba
 - dp[i][j] 表示 text1 前 i 个字符和 text2 前 j 个字符的 LCS 长度
 - 状态转移方程：
   - 如果 text1[i-1] == text2[j-1]，则 dp[i][j] = dp[i-1][j-1] + 1
-  - 否则 dp[i][j] = max(dp[i-1][j], dp[i][j-1])', '["字符串","动态规划","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256,"stackLimit":128}', '[{"input":"abcde\\nace","output":"3"},{"input":"abc\\nabc","output":"3"},{"input":"abc\\ndef","output":"0"},{"input":"abcdef\\nfedcba","output":"1"}]', '使用动态规划，dp[i][j]表示text1前i个字符和text2前j个字符的LCS长度', 0, 1, '2026-01-25 13:55:14', '2026-01-25 14:50:03', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        String text1 = sc.nextLine();\\n        String text2 = sc.nextLine();\\n        // TODO: 计算最长公共子序列\\n        \\n    }\\n}","cpp":"#include <iostream>\\n#include <string>\\nusing namespace std;\\n\\nint main() {\\n    string text1, text2;\\n    getline(cin, text1);\\n    getline(cin, text2);\\n    // TODO: 计算最长公共子序列\\n    \\n    return 0;\\n}","python":"text1 = input()\\ntext2 = input()\\n# TODO: 计算最长公共子序列\\n"}');
+  - 否则 dp[i][j] = max(dp[i-1][j], dp[i][j-1])', '["字符串","动态规划","中等"]', 0, 0, '{"timeLimit":2000,"memoryLimit":256000,"stackLimit":128000}', '[{"input":"abcde\\nace","output":"3"},{"input":"abc\\nabc","output":"3"},{"input":"abc\\ndef","output":"0"},{"input":"abcdef\\nfedcba","output":"1"}]', '使用动态规划，dp[i][j]表示text1前i个字符和text2前j个字符的LCS长度', 0, 1, '2026-01-25 13:55:14', '2026-01-25 14:50:03', 0, '{"java":"import java.util.*;\\n\\npublic class Main {\\n    public static void main(String[] args) {\\n        Scanner sc = new Scanner(System.in);\\n        String text1 = sc.nextLine();\\n        String text2 = sc.nextLine();\\n        // TODO: 计算最长公共子序列\\n        \\n    }\\n}","cpp":"#include <iostream>\\n#include <string>\\nusing namespace std;\\n\\nint main() {\\n    string text1, text2;\\n    getline(cin, text1);\\n    getline(cin, text2);\\n    // TODO: 计算最长公共子序列\\n    \\n    return 0;\\n}","python":"text1 = input()\\ntext2 = input()\\n# TODO: 计算最长公共子序列\\n"}');

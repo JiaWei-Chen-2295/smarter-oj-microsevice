@@ -8,7 +8,7 @@ import fun.javierchen.jcojbackendmodel.entity.Question;
 import fun.javierchen.jcojbackendmodel.enums.JudgeInfoMessageEnum;
 import fun.javierchen.jcsmarterojbackendjudgeservice.strategy.JudgeContext;
 import fun.javierchen.jcsmarterojbackendjudgeservice.strategy.JudgeStrategy;
-
+import fun.javierchen.jcsmarterojbackendjudgeservice.strategy.JudgeStrategyUtils;
 
 import java.util.List;
 
@@ -30,9 +30,10 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaseList();
         for (int i = 0; i < judgeCaseList.size(); i++) {
             JudgeCase judgeCase = judgeCaseList.get(i);
-            String output = outputList.get(i);
-            output = output.substring(0, output.length() - 1);
-            if (!judgeCase.getOutput().equals(output)) {
+            String actualOutput = outputList.get(i);
+            String expectedOutput = judgeCase.getOutput();
+
+            if (!JudgeStrategyUtils.isOutputMatch(actualOutput, expectedOutput)) {
                 judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
                 break;
             }

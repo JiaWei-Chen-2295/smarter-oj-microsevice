@@ -13,9 +13,10 @@ import fun.javierchen.jcsmarterojbackendjudgeservice.strategy.JudgeStrategyUtils
 import java.util.List;
 
 /**
- * 默认判题策略
+ * Python 语言判题策略
+ * 宽松的资源限制：内存和时间限制均为标准配置的 2 倍
  */
-public class DefaultJudgeStrategy implements JudgeStrategy {
+public class PythonLanguageJudgeStrategy implements JudgeStrategy {
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
         JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.ACCEPTED;
@@ -24,7 +25,6 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
         List<String> inputList = judgeContext.getInputList();
         if (outputList.size() != inputList.size()) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
-
         }
         // 仔细判断是否和预期输出一致
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaseList();
@@ -46,21 +46,22 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
         JudgeInfo judgeInfo = judgeContext.getJudgeInfo();
         Long realTime = judgeInfo.getTime();
         Long realMemory = judgeInfo.getMemory();
-        Long timeLimit = judgeConfig.getTimeLimit();
-        Long memoryLimit = judgeConfig.getMemoryLimit();
+
+        // Python 额外放宽 2 倍限制
+        Long timeLimit = judgeConfig.getTimeLimit() * 2;
+        Long memoryLimit = judgeConfig.getMemoryLimit() * 2;
+
         if (realTime > timeLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.TIME_LIMIT_EXCEEDED;
-
         }
         if (realMemory > memoryLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.MEMORY_LIMIT_EXCEEDED;
-
         }
 
         JudgeInfo judgeInfoResponse = new JudgeInfo();
         judgeInfoResponse.setMessage(judgeInfoMessageEnum.getText());
-        judgeInfoResponse.setTime(0L);
-        judgeInfoResponse.setMemory(0L);
+        judgeInfoResponse.setTime(realTime);
+        judgeInfoResponse.setMemory(realMemory);
         return judgeInfoResponse;
     }
 }

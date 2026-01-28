@@ -13,9 +13,9 @@ import fun.javierchen.jcsmarterojbackendjudgeservice.strategy.JudgeStrategyUtils
 import java.util.List;
 
 /**
- * 默认判题策略
+ * C++ 语言判题策略
  */
-public class DefaultJudgeStrategy implements JudgeStrategy {
+public class CppLanguageJudgeStrategy implements JudgeStrategy {
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
         JudgeInfoMessageEnum judgeInfoMessageEnum = JudgeInfoMessageEnum.ACCEPTED;
@@ -24,7 +24,6 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
         List<String> inputList = judgeContext.getInputList();
         if (outputList.size() != inputList.size()) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
-
         }
         // 仔细判断是否和预期输出一致
         List<JudgeCase> judgeCaseList = judgeContext.getJudgeCaseList();
@@ -48,19 +47,18 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
         Long realMemory = judgeInfo.getMemory();
         Long timeLimit = judgeConfig.getTimeLimit();
         Long memoryLimit = judgeConfig.getMemoryLimit();
+
         if (realTime > timeLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.TIME_LIMIT_EXCEEDED;
-
         }
         if (realMemory > memoryLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.MEMORY_LIMIT_EXCEEDED;
-
         }
 
         JudgeInfo judgeInfoResponse = new JudgeInfo();
         judgeInfoResponse.setMessage(judgeInfoMessageEnum.getText());
-        judgeInfoResponse.setTime(0L);
-        judgeInfoResponse.setMemory(0L);
+        judgeInfoResponse.setTime(realTime);
+        judgeInfoResponse.setMemory(realMemory);
         return judgeInfoResponse;
     }
 }
