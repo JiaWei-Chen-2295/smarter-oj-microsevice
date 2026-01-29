@@ -24,13 +24,16 @@ import fun.javierchen.jcojbackendmodel.vo.QuestionVO;
 import fun.javierchen.jcojbackendmodel.vo.SubmitHeatmapVO;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSubmitService;
+import fun.javierchen.jcojbackendmodel.dto.question.QuestionBatchImportResponse;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
+import fun.javierchen.jcojbackendserverclient.utils.UserUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -59,6 +62,9 @@ public class QuestionController {
     @Resource
     private QuestionSubmitService questionSubmitService;
 
+    @Resource
+    private fun.javierchen.jcojbackendquestionservice.service.QuestionImportService questionImportService;
+
     /**
      * 热力图缓存（简单内存缓存，生产环境建议使用Redis）
      * key: userId_startDate_endDate
@@ -79,6 +85,30 @@ public class QuestionController {
             return System.currentTimeMillis() > expireTime;
         }
     }
+
+    // region 批量导入
+
+    /**
+     * 批量导入题目（仅管理员）
+     * 支持 HUSTOJ FPS (Free Problem Set) XML 格式
+     *
+     * @param file    FPS XML 文件
+     * @param request HTTP 请求
+     * @return 导入结果，包含每道题目的导入状态
+     */
+    @PostMapping(value = "/import", consumes = "multipart/form-data")
+    @Operation(summary = "批量导入题目", description = "从 HUSTOJ FPS XML 文件批量导入题目，仅管理员可用")
+    public BaseResponse<QuestionBatchImportResponse> importQuestions(
+            @Parameter(description = "FPS XML 文件") @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+        // 获取当前登录用户
+        User loginUser = UserUtils.getLoginUser();
+        // 调用导入服务
+        QuestionBatchImportResponse response = questionImportService.importFromFpsXml(file, loginUser);
+        return ResultUtils.success(response);
+    }
+
+    // endregion
 
     // region 增删改查
 
@@ -103,7 +133,7 @@ public class QuestionController {
         }
         questionService.validQuestion(question, true);
 
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         question.setUserId(loginUser.getId());
 
         question.setFavourNum(0);
@@ -140,13 +170,13 @@ public class QuestionController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userFeignClient.getLoginUser(request);
+        User user = UserUtils.getLoginUser();
         long id = deleteRequest.getId();
         // 判断是否存在
         Question oldQuestion = questionService.getById(id);
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        if (!oldQuestion.getUserId().equals(user.getId()) && !userFeignClient.isAdmin(request)) {
+        if (!oldQuestion.getUserId().equals(user.getId()) && !UserUtils.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = questionService.removeById(id);
@@ -269,7 +299,7 @@ public class QuestionController {
         if (questionQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         questionQueryRequest.setUserId(loginUser.getId());
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
@@ -311,7 +341,7 @@ public class QuestionController {
 
         // 参数校验
         questionService.validQuestion(question, false);
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         long id = questionEditRequest.getId();
         // 判断是否存在
         Question oldQuestion = questionService.getById(id);
@@ -347,7 +377,7 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能提交题目
-        final User loginUser = userFeignClient.getLoginUser(request);
+        final User loginUser = UserUtils.getLoginUser();
         long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(result);
     }
@@ -363,7 +393,7 @@ public class QuestionController {
             HttpServletRequest request) {
         long current = questionSubmitQueryRequest.getCurrent();
         long pageSize = questionSubmitQueryRequest.getPageSize();
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         Page<QuestionSubmit> page = questionSubmitService.page(new Page<>(current, pageSize),
                 questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
         return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(page, loginUser));
@@ -411,7 +441,7 @@ public class QuestionController {
             @Parameter(description = "开始日期，格式：yyyy-MM-dd（可选，默认为最近365天）", example = "2024-01-01") @RequestParam(required = false) String startDate,
             @Parameter(description = "结束日期，格式：yyyy-MM-dd（可选，默认为今天）", example = "2024-12-31") @RequestParam(required = false) String endDate) {
         // 获取当前登录用户
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         Long userId = loginUser.getId();
 
         // 构建请求参数

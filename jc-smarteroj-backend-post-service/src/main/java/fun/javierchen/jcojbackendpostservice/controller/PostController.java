@@ -23,6 +23,7 @@ import fun.javierchen.jcojbackendpostservice.service.PostFavourService;
 import fun.javierchen.jcojbackendpostservice.service.PostService;
 import fun.javierchen.jcojbackendpostservice.service.PostThumbService;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
+import fun.javierchen.jcojbackendserverclient.utils.UserUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +79,7 @@ public class PostController {
             post.setTags(JSONUtil.toJsonStr(tags));
         }
         postService.validPost(post, true);
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         post.setUserId(loginUser.getId());
         post.setFavourNum(0);
         post.setThumbNum(0);
@@ -101,13 +102,13 @@ public class PostController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userFeignClient.getLoginUser(request);
+        User user = UserUtils.getLoginUser();
         long id = deleteRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
         ThrowUtils.throwIf(oldPost == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        if (!oldPost.getUserId().equals(user.getId()) && !userFeignClient.isAdmin(request)) {
+        if (!oldPost.getUserId().equals(user.getId()) && !UserUtils.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = postService.removeById(id);
@@ -122,12 +123,13 @@ public class PostController {
      */
     @PostMapping("/update")
     @Operation(summary = "更新帖子（管理员）")
-    public BaseResponse<Boolean> updatePost(@RequestBody PostUpdateRequest postUpdateRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> updatePost(@RequestBody PostUpdateRequest postUpdateRequest,
+            HttpServletRequest request) {
         if (postUpdateRequest == null || postUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 仅管理员可更新
-        if (!userFeignClient.isAdmin(request)) {
+        if (!UserUtils.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         Post post = new Post();
@@ -173,9 +175,10 @@ public class PostController {
      */
     @PostMapping("/list/page")
     @Operation(summary = "分页获取帖子列表（管理员）")
-    public BaseResponse<Page<Post>> listPostByPage(@RequestBody PostQueryRequest postQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<Post>> listPostByPage(@RequestBody PostQueryRequest postQueryRequest,
+            HttpServletRequest request) {
         // 仅管理员可查
-        if (!userFeignClient.isAdmin(request)) {
+        if (!UserUtils.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         long current = postQueryRequest.getCurrent();
@@ -219,7 +222,7 @@ public class PostController {
         if (postQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         postQueryRequest.setUserId(loginUser.getId());
         long current = postQueryRequest.getCurrent();
         long size = postQueryRequest.getPageSize();
@@ -253,13 +256,13 @@ public class PostController {
         }
         // 参数校验
         postService.validPost(post, false);
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         long id = postEditRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
         ThrowUtils.throwIf(oldPost == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可编辑
-        if (!oldPost.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
+        if (!oldPost.getUserId().equals(loginUser.getId()) && !UserUtils.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = postService.updateById(post);
@@ -283,7 +286,7 @@ public class PostController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能点赞
-        final User loginUser = userFeignClient.getLoginUser(request);
+        final User loginUser = UserUtils.getLoginUser();
         long postId = postThumbAddRequest.getPostId();
         int result = postThumbService.doPostThumb(postId, loginUser);
         return ResultUtils.success(result);
@@ -308,7 +311,7 @@ public class PostController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能操作
-        final User loginUser = userFeignClient.getLoginUser(request);
+        final User loginUser = UserUtils.getLoginUser();
         long postId = postFavourAddRequest.getPostId();
         int result = postFavourService.doPostFavour(postId, loginUser);
         return ResultUtils.success(result);
@@ -327,7 +330,7 @@ public class PostController {
         if (postQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         long current = postQueryRequest.getCurrent();
         long size = postQueryRequest.getPageSize();
         // 限制爬虫

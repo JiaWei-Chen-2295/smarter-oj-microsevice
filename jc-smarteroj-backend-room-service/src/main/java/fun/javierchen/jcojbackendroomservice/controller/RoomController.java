@@ -14,6 +14,7 @@ import fun.javierchen.jcojbackendmodel.vo.RoomVO;
 import fun.javierchen.jcojbackendroomservice.service.RoomService;
 import fun.javierchen.jcojbackendroomservice.utils.AuthTokenUtils;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
+import fun.javierchen.jcojbackendserverclient.utils.UserUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class RoomController {
         BeanUtils.copyProperties(roomAddRequest, room);
         roomService.validRoom(room, true);
 
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         long newRoomId = roomService.createRoom(room, loginUser);
         return ResultUtils.success(newRoomId);
     }
@@ -51,11 +52,11 @@ public class RoomController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userFeignClient.getLoginUser(request);
+        User user = UserUtils.getLoginUser();
         long id = deleteRequest.getId();
         Room oldRoom = roomService.getById(id);
         ThrowUtils.throwIf(oldRoom == null, ErrorCode.NOT_FOUND_ERROR);
-        if (!oldRoom.getUserId().equals(user.getId()) && !userFeignClient.isAdmin()) {
+        if (!oldRoom.getUserId().equals(user.getId()) && !UserUtils.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = roomService.removeById(id);
@@ -64,8 +65,8 @@ public class RoomController {
 
     @PostMapping("/update")
     public BaseResponse<Boolean> updateRoom(@RequestBody RoomUpdateRequest roomUpdateRequest) {
-        User loginUser = userFeignClient.getLoginUser();
-        ThrowUtils.throwIf(!userFeignClient.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
+        User loginUser = UserUtils.getLoginUser();
+        ThrowUtils.throwIf(!UserUtils.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
         if (roomUpdateRequest == null || roomUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -90,8 +91,8 @@ public class RoomController {
 
     @GetMapping("/get")
     public BaseResponse<Room> getRoomById(long id) {
-        User loginUser = userFeignClient.getLoginUser();
-        ThrowUtils.throwIf(!userFeignClient.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
+        User loginUser = UserUtils.getLoginUser();
+        ThrowUtils.throwIf(!UserUtils.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -104,34 +105,39 @@ public class RoomController {
 
     @PostMapping("/list/page")
     public BaseResponse<Page<Room>> listRoomByPage(@RequestBody RoomQueryRequest roomQueryRequest) {
-        User loginUser = userFeignClient.getLoginUser();
-        ThrowUtils.throwIf(!userFeignClient.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
+        User loginUser = UserUtils.getLoginUser();
+        ThrowUtils.throwIf(!UserUtils.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
         long current = roomQueryRequest.getCurrent();
         long size = roomQueryRequest.getPageSize();
-        Page<Room> roomPage = roomService.page(new Page<>(current, size), roomService.getQueryWrapper(roomQueryRequest));
+        Page<Room> roomPage = roomService.page(new Page<>(current, size),
+                roomService.getQueryWrapper(roomQueryRequest));
         return ResultUtils.success(roomPage);
     }
 
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<RoomVO>> listRoomVOByPage(@RequestBody RoomQueryRequest roomQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<RoomVO>> listRoomVOByPage(@RequestBody RoomQueryRequest roomQueryRequest,
+            HttpServletRequest request) {
         long current = roomQueryRequest.getCurrent();
         long size = roomQueryRequest.getPageSize();
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<Room> roomPage = roomService.page(new Page<>(current, size), roomService.getQueryWrapper(roomQueryRequest));
+        Page<Room> roomPage = roomService.page(new Page<>(current, size),
+                roomService.getQueryWrapper(roomQueryRequest));
         return ResultUtils.success(roomService.getRoomVOPage(roomPage, request));
     }
 
     @PostMapping("/my/list/page/vo")
-    public BaseResponse<Page<RoomVO>> listMyRoomVOByPage(@RequestBody RoomQueryRequest roomQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<RoomVO>> listMyRoomVOByPage(@RequestBody RoomQueryRequest roomQueryRequest,
+            HttpServletRequest request) {
         if (roomQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         roomQueryRequest.setUserId(loginUser.getId());
         long current = roomQueryRequest.getCurrent();
         long size = roomQueryRequest.getPageSize();
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<Room> roomPage = roomService.page(new Page<>(current, size), roomService.getQueryWrapper(roomQueryRequest));
+        Page<Room> roomPage = roomService.page(new Page<>(current, size),
+                roomService.getQueryWrapper(roomQueryRequest));
         return ResultUtils.success(roomService.getRoomVOPage(roomPage, request));
     }
 
@@ -143,11 +149,11 @@ public class RoomController {
         Room room = new Room();
         BeanUtils.copyProperties(roomEditRequest, room);
         roomService.validRoom(room, false);
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         long id = roomEditRequest.getId();
         Room oldRoom = roomService.getById(id);
         ThrowUtils.throwIf(oldRoom == null, ErrorCode.NOT_FOUND_ERROR);
-        if (!oldRoom.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
+        if (!oldRoom.getUserId().equals(loginUser.getId()) && !UserUtils.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = roomService.updateById(room);
@@ -159,7 +165,7 @@ public class RoomController {
         if (roomJoinRequest == null || roomJoinRequest.getRoomId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         Long roomId = roomJoinRequest.getRoomId();
         String password = roomJoinRequest.getPassword();
         boolean result = roomService.joinRoom(roomId, password, loginUser);
@@ -171,18 +177,20 @@ public class RoomController {
         if (roomQuitRequest == null || roomQuitRequest.getRoomId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         Long roomId = roomQuitRequest.getRoomId();
         boolean result = roomService.quitRoom(roomId, loginUser);
         return ResultUtils.success(result);
     }
 
     @PostMapping("/transfer")
-    public BaseResponse<Boolean> transferLeader(@RequestBody RoomTransferRequest roomTransferRequest, HttpServletRequest request) {
-        if (roomTransferRequest == null || roomTransferRequest.getRoomId() == null || roomTransferRequest.getNewLeaderUserId() == null) {
+    public BaseResponse<Boolean> transferLeader(@RequestBody RoomTransferRequest roomTransferRequest,
+            HttpServletRequest request) {
+        if (roomTransferRequest == null || roomTransferRequest.getRoomId() == null
+                || roomTransferRequest.getNewLeaderUserId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         Long roomId = roomTransferRequest.getRoomId();
         Long newLeaderUserId = roomTransferRequest.getNewLeaderUserId();
         boolean result = roomService.transferLeader(roomId, newLeaderUserId, loginUser);
@@ -194,7 +202,7 @@ public class RoomController {
         if (roomId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         Long timestamp = System.currentTimeMillis();
         String token = AuthTokenUtils.generateToken(loginUser.getId(), roomId, timestamp);
         RoomAuthRequest authRequest = new RoomAuthRequest();

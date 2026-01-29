@@ -13,6 +13,8 @@ import fun.javierchen.jcojbackendmodel.entity.Question;
 import fun.javierchen.jcojbackendmodel.entity.QuestionSubmit;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.enums.QuestionSubmitStatusEnum;
+
+import fun.javierchen.jcojbackendmodel.dto.questionsubmit.QuestionSubmitVOGetRequest;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
 
 import fun.javierchen.jcojbackendserverclient.QuestionFeignClient;
@@ -127,7 +129,10 @@ public class JudgeServiceImpl implements JudgeService {
         }
 
         // 获取新的提交对象返回
-        return questionFeignClient.getQuestionSubmitVO(questionFeignClient.getQuestionSubmitById(questionSubmitId),
-                loginUser);
+
+        QuestionSubmitVOGetRequest questionSubmitVOGetRequest = new QuestionSubmitVOGetRequest();
+        questionSubmitVOGetRequest.setQuestionSubmit(questionFeignClient.getQuestionSubmitById(questionSubmitId));
+        questionSubmitVOGetRequest.setLoginUser(loginUser);
+        return questionFeignClient.getQuestionSubmitVO(questionSubmitVOGetRequest);
     }
 }

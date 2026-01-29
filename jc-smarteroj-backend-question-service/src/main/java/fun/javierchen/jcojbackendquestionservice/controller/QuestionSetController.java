@@ -13,6 +13,7 @@ import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSetVO;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSetService;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
+import fun.javierchen.jcojbackendserverclient.utils.UserUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,8 @@ public class QuestionSetController {
     }
 
     @PostMapping("/add")
-    public BaseResponse<Long> addQuestionSet(@RequestBody QuestionSetAddRequest questionSetAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addQuestionSet(@RequestBody QuestionSetAddRequest questionSetAddRequest,
+            HttpServletRequest request) {
         if (questionSetAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -54,21 +56,22 @@ public class QuestionSetController {
             questionSet.setTags(cn.hutool.json.JSONUtil.toJsonStr(questionSetAddRequest.getTags()));
         }
         questionSetService.validQuestionSet(questionSet, true);
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         long newQuestionSetId = questionSetService.createQuestionSet(questionSet, loginUser);
         return ResultUtils.success(newQuestionSetId);
     }
 
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deleteQuestionSet(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteQuestionSet(@RequestBody DeleteRequest deleteRequest,
+            HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userFeignClient.getLoginUser(request);
+        User user = UserUtils.getLoginUser();
         long id = deleteRequest.getId();
         QuestionSet oldQuestionSet = questionSetService.getById(id);
         ThrowUtils.throwIf(oldQuestionSet == null, ErrorCode.NOT_FOUND_ERROR);
-        if (!oldQuestionSet.getUserId().equals(user.getId()) && !userFeignClient.isAdmin()) {
+        if (!oldQuestionSet.getUserId().equals(user.getId()) && !UserUtils.isAdmin()) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = questionSetService.removeById(id);
@@ -77,8 +80,8 @@ public class QuestionSetController {
 
     @PostMapping("/update")
     public BaseResponse<Boolean> updateQuestionSet(@RequestBody QuestionSetUpdateRequest questionSetUpdateRequest) {
-        User loginUser = userFeignClient.getLoginUser();
-        ThrowUtils.throwIf(!userFeignClient.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
+        User loginUser = UserUtils.getLoginUser();
+        ThrowUtils.throwIf(!UserUtils.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
         if (questionSetUpdateRequest == null || questionSetUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -109,8 +112,8 @@ public class QuestionSetController {
 
     @GetMapping("/get")
     public BaseResponse<QuestionSet> getQuestionSetById(long id) {
-        User loginUser = userFeignClient.getLoginUser();
-        ThrowUtils.throwIf(!userFeignClient.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
+        User loginUser = UserUtils.getLoginUser();
+        ThrowUtils.throwIf(!UserUtils.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -122,9 +125,10 @@ public class QuestionSetController {
     }
 
     @PostMapping("/list/page")
-    public BaseResponse<Page<QuestionSet>> listQuestionSetByPage(@RequestBody QuestionSetQueryRequest questionSetQueryRequest) {
-        User loginUser = userFeignClient.getLoginUser();
-        ThrowUtils.throwIf(!userFeignClient.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
+    public BaseResponse<Page<QuestionSet>> listQuestionSetByPage(
+            @RequestBody QuestionSetQueryRequest questionSetQueryRequest) {
+        User loginUser = UserUtils.getLoginUser();
+        ThrowUtils.throwIf(!UserUtils.isAdmin(loginUser), ErrorCode.NO_AUTH_ERROR);
         long current = questionSetQueryRequest.getCurrent();
         long size = questionSetQueryRequest.getPageSize();
         Page<QuestionSet> questionSetPage = questionSetService.page(new Page<>(current, size),
@@ -133,8 +137,9 @@ public class QuestionSetController {
     }
 
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<QuestionSetVO>> listQuestionSetVOByPage(@RequestBody QuestionSetQueryRequest questionSetQueryRequest,
-                                                                     HttpServletRequest request) {
+    public BaseResponse<Page<QuestionSetVO>> listQuestionSetVOByPage(
+            @RequestBody QuestionSetQueryRequest questionSetQueryRequest,
+            HttpServletRequest request) {
         long current = questionSetQueryRequest.getCurrent();
         long size = questionSetQueryRequest.getPageSize();
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
@@ -144,12 +149,13 @@ public class QuestionSetController {
     }
 
     @PostMapping("/my/list/page/vo")
-    public BaseResponse<Page<QuestionSetVO>> listMyQuestionSetVOByPage(@RequestBody QuestionSetQueryRequest questionSetQueryRequest,
-                                                                       HttpServletRequest request) {
+    public BaseResponse<Page<QuestionSetVO>> listMyQuestionSetVOByPage(
+            @RequestBody QuestionSetQueryRequest questionSetQueryRequest,
+            HttpServletRequest request) {
         if (questionSetQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         questionSetQueryRequest.setUserId(loginUser.getId());
         long current = questionSetQueryRequest.getCurrent();
         long size = questionSetQueryRequest.getPageSize();
@@ -161,7 +167,7 @@ public class QuestionSetController {
 
     @PostMapping("/edit")
     public BaseResponse<Boolean> editQuestionSet(@RequestBody QuestionSetEditRequest questionSetEditRequest,
-                                                 HttpServletRequest request) {
+            HttpServletRequest request) {
         if (questionSetEditRequest == null || questionSetEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -171,11 +177,11 @@ public class QuestionSetController {
             questionSet.setTags(cn.hutool.json.JSONUtil.toJsonStr(questionSetEditRequest.getTags()));
         }
         questionSetService.validQuestionSet(questionSet, false);
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         long id = questionSetEditRequest.getId();
         QuestionSet oldQuestionSet = questionSetService.getById(id);
         ThrowUtils.throwIf(oldQuestionSet == null, ErrorCode.NOT_FOUND_ERROR);
-        if (!oldQuestionSet.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
+        if (!oldQuestionSet.getUserId().equals(loginUser.getId()) && !UserUtils.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = questionSetService.updateById(questionSet);
@@ -183,31 +189,31 @@ public class QuestionSetController {
     }
 
     @PostMapping("/item/add")
-    public BaseResponse<Boolean> addQuestionToSet(@RequestBody QuestionSetItemAddRequest itemAddRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> addQuestionToSet(@RequestBody QuestionSetItemAddRequest itemAddRequest,
+            HttpServletRequest request) {
         if (itemAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         boolean result = questionSetService.addQuestionToSet(
                 itemAddRequest.getQuestionSetId(),
                 itemAddRequest.getQuestionId(),
                 itemAddRequest.getSortOrder(),
-                loginUser
-        );
+                loginUser);
         return ResultUtils.success(result);
     }
 
     @PostMapping("/item/remove")
-    public BaseResponse<Boolean> removeQuestionFromSet(@RequestBody QuestionSetItemRemoveRequest itemRemoveRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> removeQuestionFromSet(@RequestBody QuestionSetItemRemoveRequest itemRemoveRequest,
+            HttpServletRequest request) {
         if (itemRemoveRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
+        User loginUser = UserUtils.getLoginUser();
         boolean result = questionSetService.removeQuestionFromSet(
                 itemRemoveRequest.getQuestionSetId(),
                 itemRemoveRequest.getQuestionId(),
-                loginUser
-        );
+                loginUser);
         return ResultUtils.success(result);
     }
 }

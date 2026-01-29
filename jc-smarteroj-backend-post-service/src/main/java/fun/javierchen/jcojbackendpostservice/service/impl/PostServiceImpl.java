@@ -21,6 +21,7 @@ import fun.javierchen.jcojbackendpostservice.mapper.PostMapper;
 import fun.javierchen.jcojbackendpostservice.mapper.PostThumbMapper;
 import fun.javierchen.jcojbackendpostservice.service.PostService;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
+import fun.javierchen.jcojbackendserverclient.utils.UserUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -126,20 +127,24 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         UserVO userVO = userFeignClient.getUserVO(user);
         postVO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
-        User loginUser = userFeignClient.getLoginUser(request);
-        if (loginUser != null) {
-            // 获取点赞
-            QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
-            postThumbQueryWrapper.in("postId", postId);
-            postThumbQueryWrapper.eq("userId", loginUser.getId());
-            PostThumb postThumb = postThumbMapper.selectOne(postThumbQueryWrapper);
-            postVO.setHasThumb(postThumb != null);
-            // 获取收藏
-            QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
-            postFavourQueryWrapper.in("postId", postId);
-            postFavourQueryWrapper.eq("userId", loginUser.getId());
-            PostFavour postFavour = postFavourMapper.selectOne(postFavourQueryWrapper);
-            postVO.setHasFavour(postFavour != null);
+        try {
+            User loginUser = UserUtils.getLoginUser();
+            if (loginUser != null) {
+                // 获取点赞
+                QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
+                postThumbQueryWrapper.in("postId", postId);
+                postThumbQueryWrapper.eq("userId", loginUser.getId());
+                PostThumb postThumb = postThumbMapper.selectOne(postThumbQueryWrapper);
+                postVO.setHasThumb(postThumb != null);
+                // 获取收藏
+                QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
+                postFavourQueryWrapper.in("postId", postId);
+                postFavourQueryWrapper.eq("userId", loginUser.getId());
+                PostFavour postFavour = postFavourMapper.selectOne(postFavourQueryWrapper);
+                postVO.setHasFavour(postFavour != null);
+            }
+        } catch (Exception e) {
+            // Unlogged user, ignore
         }
         return postVO;
     }
@@ -160,7 +165,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         Map<Long, Boolean> postIdHasFavourMap = new HashMap<>();
         User loginUser = null;
         try {
-            loginUser = userFeignClient.getLoginUser(request);
+            loginUser = UserUtils.getLoginUser();
         } catch (Exception e) {
             // 未登录，忽略
         }

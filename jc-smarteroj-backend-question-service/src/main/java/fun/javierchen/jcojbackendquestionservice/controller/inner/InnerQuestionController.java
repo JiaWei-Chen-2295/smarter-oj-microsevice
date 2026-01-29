@@ -3,6 +3,8 @@ package fun.javierchen.jcojbackendquestionservice.controller.inner;
 import fun.javierchen.jcojbackendmodel.entity.Question;
 import fun.javierchen.jcojbackendmodel.entity.QuestionSubmit;
 import fun.javierchen.jcojbackendmodel.entity.User;
+
+import fun.javierchen.jcojbackendmodel.dto.questionsubmit.QuestionSubmitVOGetRequest;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSubmitService;
@@ -43,7 +45,7 @@ public class InnerQuestionController implements QuestionFeignClient {
     }
 
     @Override
-    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmitById, User loginUser) {
-        return questionSubmitService.getQuestionSubmitVO(questionSubmitById, loginUser);
+    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmitVOGetRequest request) {
+        return questionSubmitService.getQuestionSubmitVO(request.getQuestionSubmit(), request.getLoginUser());
     }
 }
