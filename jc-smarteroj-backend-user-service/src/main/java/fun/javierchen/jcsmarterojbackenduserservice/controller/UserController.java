@@ -109,8 +109,23 @@ public class UserController {
      */
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
+        long totalStart = System.currentTimeMillis();
+        log.info("[getLoginUser接口] 开始处理请求");
+
+        long stepStart = System.currentTimeMillis();
         User user = userService.getLoginUser(request);
-        return ResultUtils.success(userService.getLoginUserVO(user));
+        log.info("[getLoginUser接口] userService.getLoginUser() 耗时: {}ms", System.currentTimeMillis() - stepStart);
+
+        stepStart = System.currentTimeMillis();
+        LoginUserVO loginUserVO = userService.getLoginUserVO(user);
+        log.info("[getLoginUser接口] userService.getLoginUserVO() 耗时: {}ms", System.currentTimeMillis() - stepStart);
+
+        stepStart = System.currentTimeMillis();
+        BaseResponse<LoginUserVO> response = ResultUtils.success(loginUserVO);
+        log.info("[getLoginUser接口] ResultUtils.success() 耗时: {}ms", System.currentTimeMillis() - stepStart);
+
+        log.info("[getLoginUser接口] 请求处理完成，总耗时: {}ms", System.currentTimeMillis() - totalStart);
+        return response;
     }
 
     // endregion

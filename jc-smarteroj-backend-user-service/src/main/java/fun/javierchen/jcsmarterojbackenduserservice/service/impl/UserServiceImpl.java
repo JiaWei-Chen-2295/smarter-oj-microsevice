@@ -98,6 +98,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        long startTime = System.currentTimeMillis();
+        long stepTime = startTime;
+
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -108,13 +111,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
+        log.info("[登录性能] 参数校验耗时: {}ms", System.currentTimeMillis() - stepTime);
+        stepTime = System.currentTimeMillis();
+
         // 2. 加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        log.info("[登录性能] 密码加密耗时: {}ms", System.currentTimeMillis() - stepTime);
+        stepTime = System.currentTimeMillis();
+
         // 查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         queryWrapper.eq("userPassword", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
+        log.info("[登录性能] 数据库查询耗时: {}ms", System.currentTimeMillis() - stepTime);
+        stepTime = System.currentTimeMillis();
+
         // 用户不存在
         if (user == null) {
             log.info("user login failed, userAccount cannot match userPassword");
@@ -122,10 +134,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 3. 使用 Sa-Token 记录用户的登录态
         StpUtil.login(user.getId());
+        log.info("[登录性能] Sa-Token登录耗时: {}ms", System.currentTimeMillis() - stepTime);
+        stepTime = System.currentTimeMillis();
+
         // 将用户信息存入 Sa-Token Session
         SaSession session = StpUtil.getSession();
+        log.info("[登录性能] 获取Session耗时: {}ms", System.currentTimeMillis() - stepTime);
+        stepTime = System.currentTimeMillis();
+
         session.set(SA_SESSION_USER_KEY, user);
-        return this.getLoginUserVO(user);
+        log.info("[登录性能] 设置Session耗时: {}ms", System.currentTimeMillis() - stepTime);
+
+        LoginUserVO result = this.getLoginUserVO(user);
+        log.info("[登录性能] 总耗时: {}ms", System.currentTimeMillis() - startTime);
+        return result;
     }
 
     /**
@@ -136,22 +158,80 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
+        long startTime = System.currentTimeMillis();
+        long stepTime = startTime;
+
+        // 1. 使用 Sa-Token 判断是否已登录
+        log.info("[getLoginUser] 步骤1: 开始检查登录状态");
+        if (!StpUtil.isLogin()) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        log.info("[getLoginUser] 步骤1: StpUtil.isLogin() 耗时: {}ms", System.currentTimeMillis() - stepTime);
+        stepTime = System.currentTimeMillis();
+
+        // 2. 从 Sa-Token Session 获取用户信息
+        log.info("[getLoginUser] 步骤2: 开始获取 Session");
+        SaSession session = StpUtil.getSession();
+        log.info("[getLoginUser] 步骤2: StpUtil.getSession() 耗时: {}ms", System.currentTimeMillis() - stepTime);
+        stepTime = System.currentTimeMillis();
+
+        log.info("[getLoginUser] 步骤3: 开始从 Session 获取用户数据");
+        User currentUser = session.getModel(SA_SESSION_USER_KEY, User.class);
+        log.info("[getLoginUser] 步骤3: session.getModel() 耗时: {}ms", System.currentTimeMillis() - stepTime);
+
+        if (currentUser == null || currentUser.getId() == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+
+        // 【性能优化】直接使用 Session 缓存的用户信息，不再查询数据库
+        // 用户信息变更时（如修改资料、更新权限等），需要同步更新 Session 中的用户信息
+        // 如果需要实时获取最新数据，可以调用 getLoginUserWithRefresh 方法
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("[getLoginUser] 总耗时: {}ms", duration);
+        return currentUser;
+    }
+
+    /**
+     * 获取当前登录用户（强制刷新，从数据库获取最新信息）
+     * 
+     * <p>
+     * 当需要获取用户最新信息时使用此方法，例如：
+     * - 用户修改个人资料后
+     * - 管理员修改用户权限后
+     * - 其他需要确保用户信息最新的场景
+     * </p>
+     *
+     * @param request
+     * @return 最新的用户信息
+     */
+    public User getLoginUserWithRefresh(HttpServletRequest request) {
+        long startTime = System.currentTimeMillis();
+
         // 1. 使用 Sa-Token 判断是否已登录
         if (!StpUtil.isLogin()) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        // 2. 从 Sa-Token Session 获取用户信息
+
+        // 2. 从 Sa-Token Session 获取用户 ID
         SaSession session = StpUtil.getSession();
-        User currentUser = session.getModel(SA_SESSION_USER_KEY, User.class);
-        if (currentUser == null || currentUser.getId() == null) {
+        User cachedUser = session.getModel(SA_SESSION_USER_KEY, User.class);
+
+        if (cachedUser == null || cachedUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        // 3. 从数据库查询最新信息（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        currentUser = this.getById(userId);
+
+        // 3. 从数据库查询最新信息
+        User currentUser = this.getById(cachedUser.getId());
+
         if (currentUser == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
+
+        // 4. 更新 Session 中的用户信息
+        session.set(SA_SESSION_USER_KEY, currentUser);
+
+        log.info("[获取登录用户性能] getLoginUserWithRefresh 总耗时: {}ms", System.currentTimeMillis() - startTime);
         return currentUser;
     }
 
