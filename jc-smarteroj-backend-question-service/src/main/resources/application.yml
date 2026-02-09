@@ -87,3 +87,15 @@ sa-token:
   is-share: true
   token-style: uuid
   is-log: true
+
+# ====== Sentinel 流量防护配置 ======
+spring.cloud.sentinel:
+  # 启用饥饿加载
+  eager: true
+  # Sentinel Dashboard 控制台配置（可选）
+  transport:
+    dashboard: localhost:8858
+    port: 8721
+  # 开启 Sentinel 过滤器 (压测时临时关闭)
+  filter:
+    enabled: true
