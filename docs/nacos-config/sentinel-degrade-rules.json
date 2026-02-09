@@ -1,0 +1,20 @@
+[
+    {
+        "resource": "sms_api",
+        "grade": 1,
+        "count": 50,
+        "timeWindow": 10,
+        "minRequestAmount": 10,
+        "statIntervalMs": 1000,
+        "slowRatioThreshold": 0.5
+    },
+    {
+        "resource": "judge_submit_api",
+        "grade": 0,
+        "count": 2000,
+        "timeWindow": 30,
+        "minRequestAmount": 5,
+        "statIntervalMs": 1000,
+        "slowRatioThreshold": 0.3
+    }
+]

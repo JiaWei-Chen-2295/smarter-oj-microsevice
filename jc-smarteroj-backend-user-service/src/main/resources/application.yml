@@ -133,3 +133,15 @@ captcha:
   id: "ac46d9e9bd532607cf2b1ba39075053e"
   key: "f72c10ffca635a9e4af69d4c2e5a41f5"
   domain: "https://captcha.alicaptcha.com"
+
+# ====== Sentinel 流量防护配置 ======
+spring.cloud.sentinel:
+  # 启用饥饿加载
+  eager: true
+  # Sentinel Dashboard 控制台配置（可选）
+  transport:
+    dashboard: localhost:8858
+    port: 8720
+  # 开启 Sentinel 过滤器
+  filter:
+    enabled: true

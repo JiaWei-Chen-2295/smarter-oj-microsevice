@@ -77,10 +77,45 @@ sa-token:
   # 是否输出操作日志
   is-log: true
 
-# ====== Sentinel 配置（解决首次请求慢问题）======
+# ====== Sentinel 流量防护配置 ======
 spring.cloud.sentinel:
   # 启用饥饿加载，在应用启动时初始化 Sentinel（而不是首次请求时）
   eager: true
+  # Sentinel Dashboard 控制台配置（可选，用于可视化配置和监控）
+  transport:
+    dashboard: localhost:8858
+    port: 8719
+  # 关闭 URL 路径清理（保持原始路径用于精确匹配）
+  http-method-specify: true
+  # 开启对 Spring Cloud Gateway 的支持
+  filter:
+    enabled: true
+  # Nacos 数据源配置（规则持久化）
+  datasource:
+    # 网关流控规则
+    gw-flow:
+      nacos:
+        server-addr: ${spring.cloud.nacos.serverAddr}
+        data-id: sentinel-gateway-flow-rules.json
+        group-id: SENTINEL_GROUP
+        data-type: json
+        rule-type: gw-flow
+    # 网关 API 分组规则
+    gw-api-group:
+      nacos:
+        server-addr: ${spring.cloud.nacos.serverAddr}
+        data-id: sentinel-gateway-api-group.json
+        group-id: SENTINEL_GROUP
+        data-type: json
+        rule-type: gw-api-group
+    # 降级熔断规则
+    degrade:
+      nacos:
+        server-addr: ${spring.cloud.nacos.serverAddr}
+        data-id: sentinel-degrade-rules.json
+        group-id: SENTINEL_GROUP
+        data-type: json
+        rule-type: degrade
 
 # ====== 网关预热配置 ======
 gateway:
@@ -92,3 +127,12 @@ gateway:
       - jc-smarteroj-backend-judge-service
       - jc-smarteroj-backend-post-service
       - jc-smarteroj-backend-room-service
+
+# ====== 黑名单配置 ======
+blacklist:
+  # 临时黑名单封禁时长（分钟）
+  temp-ban-duration: 30
+  # 触发临时黑名单的限流次数阈值
+  rate-limit-threshold: 3
+  # 进入临时黑名单次数达到此值时触发永久黑名单警告
+  perm-ban-warning-threshold: 3

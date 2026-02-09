@@ -1,0 +1,33 @@
+[
+    {
+        "apiName": "sms_api",
+        "predicateItems": [
+            {
+                "pattern": "/api/user/sms/**",
+                "matchStrategy": 1
+            }
+        ]
+    },
+    {
+        "apiName": "question_query_api",
+        "predicateItems": [
+            {
+                "pattern": "/api/question/list/**",
+                "matchStrategy": 1
+            },
+            {
+                "pattern": "/api/question/get/**",
+                "matchStrategy": 1
+            }
+        ]
+    },
+    {
+        "apiName": "judge_submit_api",
+        "predicateItems": [
+            {
+                "pattern": "/api/question/question_submit/do",
+                "matchStrategy": 0
+            }
+        ]
+    }
+]

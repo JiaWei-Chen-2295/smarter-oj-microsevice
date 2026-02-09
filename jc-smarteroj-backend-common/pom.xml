@@ -45,6 +45,14 @@
             <version>3.1.5</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- ====== Sentinel 流量防护 ====== -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+            <version>2021.0.5.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

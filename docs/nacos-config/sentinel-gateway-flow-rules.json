@@ -1,0 +1,95 @@
+[
+  {
+    "resource": "jc-smarteroj-backend-user-service",
+    "resourceMode": 0,
+    "count": 200,
+    "intervalSec": 1,
+    "controlBehavior": 0,
+    "burst": 0,
+    "maxQueueingTimeoutMs": 0
+  },
+  {
+    "resource": "jc-smarteroj-backend-question-service",
+    "resourceMode": 0,
+    "count": 150,
+    "intervalSec": 1,
+    "controlBehavior": 0,
+    "burst": 0,
+    "maxQueueingTimeoutMs": 0
+  },
+  {
+    "resource": "jc-smarteroj-backend-judge-service",
+    "resourceMode": 0,
+    "count": 100,
+    "intervalSec": 1,
+    "controlBehavior": 0,
+    "burst": 0,
+    "maxQueueingTimeoutMs": 0
+  },
+  {
+    "resource": "sms_api",
+    "resourceMode": 1,
+    "count": 10,
+    "intervalSec": 1,
+    "controlBehavior": 0,
+    "burst": 0,
+    "maxQueueingTimeoutMs": 0
+  },
+  {
+    "resource": "sms_api",
+    "resourceMode": 1,
+    "count": 5,
+    "intervalSec": 60,
+    "controlBehavior": 0,
+    "paramItem": {
+      "parseStrategy": 0,
+      "fieldName": null,
+      "pattern": null,
+      "matchStrategy": 0
+    }
+  },
+  {
+    "resource": "question_query_api",
+    "resourceMode": 1,
+    "count": 80,
+    "intervalSec": 1,
+    "controlBehavior": 0,
+    "burst": 0,
+    "maxQueueingTimeoutMs": 0
+  },
+  {
+    "resource": "question_query_api",
+    "resourceMode": 1,
+    "count": 20,
+    "intervalSec": 60,
+    "controlBehavior": 0,
+    "paramItem": {
+      "parseStrategy": 0,
+      "fieldName": null,
+      "pattern": null,
+      "matchStrategy": 0
+    }
+  },
+  {
+    "resource": "judge_submit_api",
+    "resourceMode": 1,
+    "count": 100,
+    "intervalSec": 1,
+    "controlBehavior": 0,
+    "burst": 0,
+    "maxQueueingTimeoutMs": 0
+  },
+  {
+    "resource": "judge_submit_api",
+    "resourceMode": 1,
+    "count": 3,
+    "intervalSec": 10,
+    "controlBehavior": 0,
+    "paramItem": {
+      "parseStrategy": 2,
+      "fieldName": "X-User-Id",
+      "pattern": null,
+      "matchStrategy": 0
+    }
+  }
+]

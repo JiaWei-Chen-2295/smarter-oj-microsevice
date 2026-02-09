@@ -1,5 +1,7 @@
 package fun.javierchen.jcsmarterojbackenduserservice.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import fun.javierchen.jcojbackendcommon.common.BaseResponse;
@@ -304,16 +306,39 @@ public class UserController {
     /**
      * 行为验证码二次校验 (用于保护短信接口)
      * 
-     * @param request
-     * @return
+     * Sentinel 限流配置:
+     * - 资源名: sendSmsCaptcha
+     * - 降级处理: sendSmsCaptchaBlockHandler
+     * 
+     * @param request 短信验证码请求
+     * @return 发送结果
      */
     @PostMapping("/captcha/sms")
+    @SentinelResource(value = "sendSmsCaptcha", blockHandler = "sendSmsCaptchaBlockHandler", fallback = "sendSmsCaptchaFallback")
     public BaseResponse<Boolean> sendSmsCaptcha(@RequestBody SmsCaptchaRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean result = userService.sendSmsCaptcha(request);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 短信发送接口限流降级处理
+     * 当触发 Sentinel 限流规则时调用此方法
+     */
+    public BaseResponse<Boolean> sendSmsCaptchaBlockHandler(SmsCaptchaRequest request, BlockException e) {
+        log.warn("[Sentinel] 短信发送接口被限流: {}", e.getMessage());
+        return ResultUtils.error(ErrorCode.OPERATION_ERROR, "请求过于频繁，请稍后重试");
+    }
+
+    /**
+     * 短信发送接口异常降级处理
+     * 当短信服务异常时调用此方法
+     */
+    public BaseResponse<Boolean> sendSmsCaptchaFallback(SmsCaptchaRequest request, Throwable t) {
+        log.error("[Sentinel] 短信发送接口异常降级: {}", t.getMessage());
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "短信服务暂时不可用，请稍后重试");
     }
 
     /**

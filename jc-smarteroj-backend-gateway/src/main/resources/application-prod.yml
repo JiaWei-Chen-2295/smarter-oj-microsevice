@@ -69,3 +69,43 @@ sa-token:
   is-share: true
   token-style: uuid
   is-log: false
+
+# ====== Sentinel 流量防护配置 ======
+spring.cloud.sentinel:
+  # 启用饥饿加载，在应用启动时初始化 Sentinel（而不是首次请求时）
+  eager: true
+  # Sentinel Dashboard 控制台配置（Docker 环境使用容器名）
+  transport:
+    dashboard: ${SENTINEL_DASHBOARD_HOST:sentinel-dashboard}:8858
+    port: 8719
+  # 关闭 URL 路径清理（保持原始路径用于精确匹配）
+  http-method-specify: true
+  # 开启对 Spring Cloud Gateway 的支持
+  filter:
+    enabled: true
+  # Nacos 数据源配置（规则持久化）
+  datasource:
+    # 网关流控规则
+    gw-flow:
+      nacos:
+        server-addr: ${spring.cloud.nacos.serverAddr}
+        data-id: sentinel-gateway-flow-rules.json
+        group-id: SENTINEL_GROUP
+        data-type: json
+        rule-type: gw-flow
+    # 网关 API 分组规则
+    gw-api-group:
+      nacos:
+        server-addr: ${spring.cloud.nacos.serverAddr}
+        data-id: sentinel-gateway-api-group.json
+        group-id: SENTINEL_GROUP
+        data-type: json
+        rule-type: gw-api-group
+    # 降级熔断规则
+    degrade:
+      nacos:
+        server-addr: ${spring.cloud.nacos.serverAddr}
+        data-id: sentinel-degrade-rules.json
+        group-id: SENTINEL_GROUP
+        data-type: json
+        rule-type: degrade

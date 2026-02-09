@@ -15,7 +15,6 @@ spring:
   session:
     store-type: redis
     timeout: 259200000
-
   cloud:
     nacos:
       serverAddr: nacos:8848
@@ -51,7 +50,6 @@ spring:
       write-dates-as-timestamps: false
     deserialization:
       adjust-dates-to-context-time-zone: false
-
 server:
   address: 0.0.0.0
   port: 8201
@@ -113,3 +111,15 @@ captcha:
   id: ${CAPTCHA_ID:ac46d9e9bd532607cf2b1ba39075053e}
   key: ${CAPTCHA_KEY:f72c10ffca635a9e4af69d4c2e5a41f5}
   domain: "https://captcha.alicaptcha.com"
+
+# ====== Sentinel 流量防护配置 ======
+spring.cloud.sentinel:
+  # 启用饥饿加载
+  eager: true
+  # Sentinel Dashboard 控制台配置（Docker 环境使用容器名）
+  transport:
+    dashboard: ${SENTINEL_DASHBOARD_HOST:sentinel-dashboard}:8858
+    port: 8720
+  # 开启 Sentinel 过滤器
+  filter:
+    enabled: true
