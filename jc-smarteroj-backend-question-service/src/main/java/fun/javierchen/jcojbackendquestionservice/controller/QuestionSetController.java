@@ -11,6 +11,8 @@ import fun.javierchen.jcojbackendmodel.dto.questionset.*;
 import fun.javierchen.jcojbackendmodel.entity.QuestionSet;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSetVO;
+import fun.javierchen.jcojbackendquestionservice.cache.CacheInvalidator;
+import fun.javierchen.jcojbackendquestionservice.cache.QuestionSetCacheService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSetService;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
 import fun.javierchen.jcojbackendserverclient.utils.UserUtils;
@@ -33,6 +35,12 @@ public class QuestionSetController {
 
     @Resource
     private UserFeignClient userFeignClient;
+
+    @Resource
+    private CacheInvalidator cacheInvalidator;
+
+    @Resource
+    private QuestionSetCacheService questionSetCacheService;
 
     @GetMapping("/v3/api-docs")
     public void redirectOpenApiDocs(HttpServletResponse response) throws IOException {
@@ -58,6 +66,8 @@ public class QuestionSetController {
         questionSetService.validQuestionSet(questionSet, true);
         User loginUser = UserUtils.getLoginUser();
         long newQuestionSetId = questionSetService.createQuestionSet(questionSet, loginUser);
+        // 新增题目集 → 失效列表缓存
+        cacheInvalidator.onQuestionSetAdded();
         return ResultUtils.success(newQuestionSetId);
     }
 
@@ -75,6 +85,8 @@ public class QuestionSetController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = questionSetService.removeById(id);
+        // 删除题目集 → 失效详情 + 列表缓存
+        cacheInvalidator.onQuestionSetUpdatedOrDeleted(id);
         return ResultUtils.success(b);
     }
 
@@ -95,6 +107,8 @@ public class QuestionSetController {
         QuestionSet oldQuestionSet = questionSetService.getById(id);
         ThrowUtils.throwIf(oldQuestionSet == null, ErrorCode.NOT_FOUND_ERROR);
         boolean result = questionSetService.updateById(questionSet);
+        // 更新题目集 → 失效详情 + 列表缓存
+        cacheInvalidator.onQuestionSetUpdatedOrDeleted(id);
         return ResultUtils.success(result);
     }
 
@@ -103,11 +117,11 @@ public class QuestionSetController {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        QuestionSet questionSet = questionSetService.getById(id);
-        if (questionSet == null) {
+        QuestionSetVO questionSetVO = questionSetCacheService.getQuestionSetVOById(id, request);
+        if (questionSetVO == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        return ResultUtils.success(questionSetService.getQuestionSetVO(questionSet, request));
+        return ResultUtils.success(questionSetVO);
     }
 
     @GetMapping("/get")
@@ -140,12 +154,11 @@ public class QuestionSetController {
     public BaseResponse<Page<QuestionSetVO>> listQuestionSetVOByPage(
             @RequestBody QuestionSetQueryRequest questionSetQueryRequest,
             HttpServletRequest request) {
-        long current = questionSetQueryRequest.getCurrent();
         long size = questionSetQueryRequest.getPageSize();
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<QuestionSet> questionSetPage = questionSetService.page(new Page<>(current, size),
-                questionSetService.getQueryWrapper(questionSetQueryRequest));
-        return ResultUtils.success(questionSetService.getQuestionSetVOPage(questionSetPage, request));
+        // 多级缓存查询
+        Page<QuestionSetVO> result = questionSetCacheService.listQuestionSetVOByPageWithCache(questionSetQueryRequest, request);
+        return ResultUtils.success(result);
     }
 
     @PostMapping("/my/list/page/vo")
@@ -185,6 +198,8 @@ public class QuestionSetController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = questionSetService.updateById(questionSet);
+        // 编辑题目集 → 失效详情 + 列表缓存
+        cacheInvalidator.onQuestionSetUpdatedOrDeleted(id);
         return ResultUtils.success(result);
     }
 
@@ -200,6 +215,8 @@ public class QuestionSetController {
                 itemAddRequest.getQuestionId(),
                 itemAddRequest.getSortOrder(),
                 loginUser);
+        // 题目加入集合 → 失效该集详情缓存
+        cacheInvalidator.onQuestionSetItemChanged(itemAddRequest.getQuestionSetId());
         return ResultUtils.success(result);
     }
 
@@ -214,6 +231,8 @@ public class QuestionSetController {
                 itemRemoveRequest.getQuestionSetId(),
                 itemRemoveRequest.getQuestionId(),
                 loginUser);
+        // 题目移出集合 → 失效该集详情缓存
+        cacheInvalidator.onQuestionSetItemChanged(itemRemoveRequest.getQuestionSetId());
         return ResultUtils.success(result);
     }
 }

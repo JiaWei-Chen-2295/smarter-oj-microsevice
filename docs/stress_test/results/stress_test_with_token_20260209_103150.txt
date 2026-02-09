@@ -1,0 +1,33 @@
+==========================================
+ Question Service 压力测试报告（带 Token）
+==========================================
+测试时间: Mon Feb  9 10:32:18 CST 2026
+配置: 4 线程, 50 连接, 30s 持续
+
+[Test 1] GET /api/question/get/vo (通过网关)
+---
+Running 30s test @ http://localhost:8101/api/question/get/vo?id=1907
+  4 threads and 50 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   175.79ms  277.15ms   2.00s    87.44%
+    Req/Sec   253.59    294.89     0.94k    74.24%
+  21411 requests in 30.03s, 34.31MB read
+  Socket errors: connect 0, read 0, write 0, timeout 10
+Requests/sec:    712.97
+Transfer/sec:      1.14MB
+
+[Test 2] POST /api/question/list/page/vo (通过网关)
+---
+Running 30s test @ http://localhost:8101/api/question/list/page/vo
+  4 threads and 50 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   257.22ms  335.46ms   1.89s    84.84%
+    Req/Sec   118.21    149.02   520.00     76.37%
+  7953 requests in 30.11s, 147.17MB read
+  Socket errors: connect 0, read 0, write 0, timeout 71
+Requests/sec:    264.16
+Transfer/sec:      4.89MB
+
+==========================================
+ 测试完成
+==========================================

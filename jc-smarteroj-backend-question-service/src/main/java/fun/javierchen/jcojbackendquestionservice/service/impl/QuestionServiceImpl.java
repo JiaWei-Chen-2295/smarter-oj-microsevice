@@ -17,9 +17,9 @@ import fun.javierchen.jcojbackendmodel.dto.question.JudgeConfig;
 import fun.javierchen.jcojbackendmodel.dto.question.CodeTemplate;
 import fun.javierchen.jcojbackendmodel.dto.question.QuestionQueryRequest;
 import fun.javierchen.jcojbackendmodel.entity.Question;
-import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionVO;
 import fun.javierchen.jcojbackendmodel.vo.UserVO;
+import fun.javierchen.jcojbackendquestionservice.cache.UserCacheService;
 import fun.javierchen.jcojbackendquestionservice.mapper.QuestionMapper;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
 import fun.javierchen.jcojbackendserverclient.UserFeignClient;
@@ -45,6 +45,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
     @Resource
     private UserFeignClient userFeignClient;
+
+    @Resource
+    private UserCacheService userCacheService;
 
     @Override
     public void validQuestion(Question question, boolean add) {
@@ -135,14 +138,11 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     @Override
     public QuestionVO getQuestionVO(Question question) {
         QuestionVO questionVO = QuestionVO.objToVo(question);
-        // 1. 关联查询用户信息
+        // 通过缓存获取用户信息，避免每次 Feign 远程调用
         Long userId = question.getUserId();
         if (userId != null && userId > 0) {
-            User user = userFeignClient.getById(userId);
-            UserVO userVO = userFeignClient.getUserVO(user);
-            questionVO.setUserVO(userVO);
+            questionVO.setUserVO(userCacheService.getUserVO(userId));
         }
-
         return questionVO;
     }
 
@@ -153,19 +153,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         if (CollUtil.isEmpty(questionList)) {
             return questionVOPage;
         }
-        // 1. 关联查询用户信息
+        // 批量获取用户信息（带缓存，仅对miss部分发起Feign调用）
         Set<Long> userIdSet = questionList.stream().map(Question::getUserId).collect(Collectors.toSet());
-        Map<Long, List<User>> userIdUserListMap = userFeignClient.listByIds(userIdSet).stream()
-                .collect(Collectors.groupingBy(User::getId));
+        Map<Long, UserVO> userVOMap = userCacheService.listUserVOByIds(userIdSet);
         // 填充信息
         List<QuestionVO> questionVOList = questionList.stream().map(question -> {
             QuestionVO questionVO = QuestionVO.objToVo(question);
             Long userId = question.getUserId();
-            User user = null;
-            if (userIdUserListMap.containsKey(userId)) {
-                user = userIdUserListMap.get(userId).get(0);
-            }
-            questionVO.setUserVO(userFeignClient.getUserVO(user));
+            questionVO.setUserVO(userVOMap.get(userId));
             return questionVO;
         }).collect(Collectors.toList());
         questionVOPage.setRecords(questionVOList);

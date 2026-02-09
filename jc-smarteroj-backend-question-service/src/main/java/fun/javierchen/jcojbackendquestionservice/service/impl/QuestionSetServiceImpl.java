@@ -16,6 +16,8 @@ import fun.javierchen.jcojbackendmodel.entity.QuestionSetItem;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSetVO;
 import fun.javierchen.jcojbackendmodel.vo.QuestionVO;
+import fun.javierchen.jcojbackendmodel.vo.UserVO;
+import fun.javierchen.jcojbackendquestionservice.cache.UserCacheService;
 import fun.javierchen.jcojbackendquestionservice.mapper.QuestionSetMapper;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSetItemService;
@@ -42,6 +44,9 @@ public class QuestionSetServiceImpl extends ServiceImpl<QuestionSetMapper, Quest
 
     @Resource
     private UserFeignClient userFeignClient;
+
+    @Resource
+    private UserCacheService userCacheService;
 
     @Resource
     private QuestionService questionService;
@@ -102,8 +107,7 @@ public class QuestionSetServiceImpl extends ServiceImpl<QuestionSetMapper, Quest
         QuestionSetVO questionSetVO = QuestionSetVO.objToVo(questionSet);
         Long userId = questionSet.getUserId();
         if (userId != null && userId > 0) {
-            User user = userFeignClient.getById(userId);
-            questionSetVO.setUserVO(userFeignClient.getUserVO(user));
+            questionSetVO.setUserVO(userCacheService.getUserVO(userId));
         }
 
         Long questionSetId = questionSet.getId();
@@ -121,9 +125,9 @@ public class QuestionSetServiceImpl extends ServiceImpl<QuestionSetMapper, Quest
             return questionSetVOPage;
         }
 
+        // 批量获取用户信息（带缓存）
         Set<Long> userIdSet = questionSetList.stream().map(QuestionSet::getUserId).collect(Collectors.toSet());
-        Map<Long, List<User>> userIdUserListMap = userFeignClient.listByIds(userIdSet).stream()
-                .collect(Collectors.groupingBy(User::getId));
+        Map<Long, UserVO> userVOMap = userCacheService.listUserVOByIds(userIdSet);
 
         Set<Long> questionSetIdSet = questionSetList.stream().map(QuestionSet::getId).collect(Collectors.toSet());
         List<Question> questionList = this.baseMapper.listQuestionMapByQuestionSetIds(questionSetIdSet);
@@ -139,19 +143,14 @@ public class QuestionSetServiceImpl extends ServiceImpl<QuestionSetMapper, Quest
 
         List<QuestionSetVO> questionSetVOList = questionSetList.stream().map(qs -> {
             QuestionSetVO questionSetVO = QuestionSetVO.objToVo(qs);
-            Long userId = qs.getUserId();
-            User user = null;
-            if (userIdUserListMap.containsKey(userId)) {
-                user = userIdUserListMap.get(userId).get(0);
-            }
-            questionSetVO.setUserVO(userFeignClient.getUserVO(user));
+            questionSetVO.setUserVO(userVOMap.get(qs.getUserId()));
 
             List<Question> questions = questionSetQuestionMap.get(qs.getId());
             if (questions == null) {
                 questions = new ArrayList<>();
             }
-            List<QuestionVO> questionVOList = questions.stream().map(QuestionVO::objToVo).collect(Collectors.toList());
-            questionSetVO.setQuestions(questionVOList);
+            List<QuestionVO> questionVOList2 = questions.stream().map(QuestionVO::objToVo).collect(Collectors.toList());
+            questionSetVO.setQuestions(questionVOList2);
             return questionSetVO;
         }).collect(Collectors.toList());
 

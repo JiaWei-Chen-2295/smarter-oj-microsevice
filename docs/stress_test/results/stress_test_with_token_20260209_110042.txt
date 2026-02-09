@@ -1,0 +1,54 @@
+==========================================
+ Question Service 压力测试报告（带 Token）
+==========================================
+测试时间: Mon Feb  9 11:00:44 CST 2026
+配置: 4 线程, 50 连接, 30s 持续
+
+[Test 1] GET /api/question/get/vo (通过网关)
+---
+Running 30s test @ http://localhost:8101/api/question/get/vo?id=1907
+  4 threads and 50 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    53.52ms   40.73ms 468.25ms   93.78%
+    Req/Sec   250.49     68.50   363.00     74.24%
+  29494 requests in 30.04s, 47.26MB read
+Requests/sec:    981.97
+Transfer/sec:      1.57MB
+
+[Test 2] POST /api/question/list/page/vo (通过网关)
+---
+Running 30s test @ http://localhost:8101/api/question/list/page/vo
+  4 threads and 50 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    99.79ms   43.61ms 493.28ms   89.52%
+    Req/Sec   125.33     34.26   242.00     71.34%
+  14866 requests in 30.05s, 563.20MB read
+Requests/sec:    494.77
+Transfer/sec:     18.74MB
+
+[Test 3] GET /api/question/get/vo (直连服务)
+---
+Running 30s test @ http://localhost:8202/api/question/get/vo?id=1907
+  4 threads and 50 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     5.96ms   15.20ms 790.91ms   97.77%
+    Req/Sec     2.11k   648.25     4.05k    65.58%
+  252213 requests in 30.01s, 404.14MB read
+Requests/sec:   8403.35
+Transfer/sec:     13.47MB
+
+[Test 4] POST /api/question/list/page/vo (直连服务)
+---
+Running 30s test @ http://localhost:8202/api/question/list/page/vo
+  4 threads and 50 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   113.47ms  219.25ms   1.42s    90.32%
+    Req/Sec   249.54     73.92   575.00     72.64%
+  29892 requests in 30.03s, 1.11GB read
+  Socket errors: connect 0, read 0, write 0, timeout 13
+Requests/sec:    995.37
+Transfer/sec:     37.71MB
+
+==========================================
+ 测试完成
+==========================================

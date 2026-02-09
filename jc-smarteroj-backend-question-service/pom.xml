@@ -62,6 +62,20 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!-- ====== Sentinel 流量防护 ====== -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+            <version>2021.0.5.0</version>
+        </dependency>
+
+        <!-- ====== Caffeine 本地缓存 (L1) ====== -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.9.3</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

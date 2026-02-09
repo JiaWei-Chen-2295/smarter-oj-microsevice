@@ -3,6 +3,8 @@ package fun.javierchen.jcojbackendquestionservice.controller;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
@@ -22,6 +24,8 @@ import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.QuestionSubmitVO;
 import fun.javierchen.jcojbackendmodel.vo.QuestionVO;
 import fun.javierchen.jcojbackendmodel.vo.SubmitHeatmapVO;
+import fun.javierchen.jcojbackendquestionservice.cache.CacheInvalidator;
+import fun.javierchen.jcojbackendquestionservice.cache.QuestionCacheService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionService;
 import fun.javierchen.jcojbackendquestionservice.service.QuestionSubmitService;
 import fun.javierchen.jcojbackendmodel.dto.question.QuestionBatchImportResponse;
@@ -61,6 +65,12 @@ public class QuestionController {
 
     @Resource
     private QuestionSubmitService questionSubmitService;
+
+    @Resource
+    private QuestionCacheService questionCacheService;
+
+    @Resource
+    private CacheInvalidator cacheInvalidator;
 
     @Resource
     private fun.javierchen.jcojbackendquestionservice.service.QuestionImportService questionImportService;
@@ -155,6 +165,8 @@ public class QuestionController {
         boolean result = questionService.save(question);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         long newQuestionId = question.getId();
+        // 新增题目 → 失效列表缓存
+        cacheInvalidator.onQuestionAdded();
         return ResultUtils.success(newQuestionId);
     }
 
@@ -180,6 +192,8 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = questionService.removeById(id);
+        // 删除题目 → 失效详情 + 列表缓存
+        cacheInvalidator.onQuestionUpdatedOrDeleted(id);
         return ResultUtils.success(b);
     }
 
@@ -213,6 +227,8 @@ public class QuestionController {
         Question oldQuestion = questionService.getById(id);
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
         boolean result = questionService.updateById(question);
+        // 更新题目 → 失效详情 + 列表缓存
+        cacheInvalidator.onQuestionUpdatedOrDeleted(id);
         return ResultUtils.success(result);
     }
 
@@ -227,11 +243,11 @@ public class QuestionController {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        Question question = questionService.getById(id);
-        if (question == null) {
+        QuestionVO questionVO = questionCacheService.getQuestionVOById(id);
+        if (questionVO == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        return ResultUtils.success(questionService.getQuestionVO(question));
+        return ResultUtils.success(questionVO);
     }
 
     /**
@@ -270,20 +286,34 @@ public class QuestionController {
     /**
      * 分页获取列表（封装类）
      *
+     * Sentinel 限流配置:
+     * - 资源名: listQuestionVOByPage
+     * - 用途: 防止爬虫高频抓取题库数据
+     *
      * @param questionQueryRequest
      * @param request
      * @return
      */
     @PostMapping("/list/page/vo")
+    @SentinelResource(value = "listQuestionVOByPage", blockHandler = "listQuestionVOByPageBlockHandler")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
             HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<Question> questionPage = questionService.page(new Page<>(current, size),
-                questionService.getQueryWrapper(questionQueryRequest));
-        return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+        // 多级缓存查询（内部判断是否可缓存，不可缓存则直接穿透DB）
+        Page<QuestionVO> result = questionCacheService.listQuestionVOByPageWithCache(questionQueryRequest, request);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 题目列表查询限流降级处理
+     */
+    public BaseResponse<Page<QuestionVO>> listQuestionVOByPageBlockHandler(
+            QuestionQueryRequest questionQueryRequest, HttpServletRequest request, BlockException e) {
+        log.warn("[Sentinel] 题目列表查询被限流: {}", e.getMessage());
+        return ResultUtils.error(ErrorCode.OPERATION_ERROR, "请求过于频繁，请稍后重试");
     }
 
     /**
@@ -351,6 +381,8 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = questionService.updateById(question);
+        // 编辑题目 → 失效详情 + 列表缓存
+        cacheInvalidator.onQuestionUpdatedOrDeleted(id);
         return ResultUtils.success(result);
     }
 
@@ -366,11 +398,17 @@ public class QuestionController {
     /**
      * 提交题目
      *
+     * Sentinel 限流配置:
+     * - 资源名: doQuestionSubmit
+     * - 用途: 用户提交冷却，防止刷题攻击
+     * - 维度: 以用户为主
+     *
      * @param questionSubmitAddRequest
      * @param request
      * @return
      */
     @PostMapping("/submit")
+    @SentinelResource(value = "doQuestionSubmit", blockHandler = "doQuestionSubmitBlockHandler", fallback = "doQuestionSubmitFallback")
     public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
             HttpServletRequest request) {
         if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
@@ -380,6 +418,26 @@ public class QuestionController {
         final User loginUser = UserUtils.getLoginUser();
         long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 判题提交限流降级处理
+     * 当单用户提交频率过高时触发
+     */
+    public BaseResponse<Long> doQuestionSubmitBlockHandler(
+            QuestionSubmitAddRequest questionSubmitAddRequest, HttpServletRequest request, BlockException e) {
+        log.warn("[Sentinel] 判题提交被限流: {}", e.getMessage());
+        return ResultUtils.error(ErrorCode.OPERATION_ERROR, "提交过于频繁，请稍后重试");
+    }
+
+    /**
+     * 判题提交异常降级处理
+     * 当判题服务异常时触发
+     */
+    public BaseResponse<Long> doQuestionSubmitFallback(
+            QuestionSubmitAddRequest questionSubmitAddRequest, HttpServletRequest request, Throwable t) {
+        log.error("[Sentinel] 判题提交异常降级: {}", t.getMessage());
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "判题服务暂时不可用，请稍后重试");
     }
 
     /**
