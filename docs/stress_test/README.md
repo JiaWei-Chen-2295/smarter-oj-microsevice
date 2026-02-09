@@ -2,7 +2,7 @@
 
 ## 测试目标
 
-对 `jc-smarteroj-backend-question-service` 中的读接口进行压力测试，观察缓存效果。
+对 `jc-smarteroj-backend-question-service` 中的读接口进行压力测试，验证多级缓存命中与链路开销。
 
 ### 测试接口
 
@@ -11,7 +11,7 @@
 | 获取题目详情 | GET | `/api/question/get/vo` | ~50ms | 1次DB查询 + 1次Feign调用(UserService) |
 | 分页查询题目 | POST | `/api/question/list/page/vo` | ~100ms | 1次分页查询 + 1次批量Feign调用 |
 
-### 性能瓶颈
+### 性能瓶颈（历史基准）
 
 1. **VO转换的Feign调用** 是最大瓶颈：每个 QuestionVO 都需通过网络获取 UserVO
 2. 当前所有读接口均直连 MySQL，无应用级缓存
@@ -35,15 +35,26 @@
 
 详细报告见: `results/baseline_test_20260206.md`
 
+## 缓存生效后的对比结果（网关 vs 直连）
+
+缓存预热后进行对比测试（确保 L1/L2 命中）：
+
+| 接口 | 网关 QPS | 直连 QPS | 备注 |
+|-----|---------|---------|-----|
+| GET /get/vo | **981.97** | **8,403.35** | 网关鉴权/路由开销明显 |
+| POST /list/page/vo | **494.77** | **995.37** | 网关开销明显 |
+
+详细报告见: `results/cache_test_20260209_compare.md`
+
 ## 前置步骤
 
-### 1. 关闭 Sentinel 限流（已完成）
+### 1. 如需压测，请关闭 Sentinel 限流
 
 配置文件已修改（`filter.enabled: false`）：
 - `jc-smarteroj-backend-question-service/src/main/resources/application.yml`
 - `jc-smarteroj-backend-gateway/src/main/resources/application.yml`
 
-### 2. 恢复 Sentinel 限流（压测完成后）
+### 2. 压测完成后恢复 Sentinel 限流
 
 将以下配置改回 `true`：
 
@@ -72,7 +83,7 @@ cd /mnt/d/a_project_with_yupi/d-smarterOJ/smarter-oj-microsevice/docs/stress_tes
 # 设置有效的 Token（从浏览器复制）
 export SATOKEN="your-satoken-here"
 
-# 运行带 Token 的测试
+# 运行带 Token 的测试（含预热 + 网关/直连对比）
 bash run_with_token.sh
 ```
 
@@ -83,7 +94,7 @@ bash run_with_token.sh
 wrk -t4 -c50 -d30s -H 'Cookie: satoken=YOUR_TOKEN' 'http://localhost:8101/api/question/get/vo?id=1907'
 
 # POST 请求测试（带 Token）
-wrk -t4 -c50 -d30s -s list_page_vo_with_token.lua 'http://localhost:8101/api/question/list/page/vo'
+SATOKEN=YOUR_TOKEN wrk -t4 -c50 -d30s -s list_page_vo_with_token.lua 'http://localhost:8101/api/question/list/page/vo'
 ```
 
 ## 文件说明
@@ -91,8 +102,10 @@ wrk -t4 -c50 -d30s -s list_page_vo_with_token.lua 'http://localhost:8101/api/que
 ```
 stress_test/
 ├── README.md                       # 本文档
-├── run_with_token.sh               # 压测脚本（带 Token）
-├── list_page_vo_with_token.lua     # POST 请求 wrk 配置
+├── run_with_token.sh               # 压测脚本（带 Token + 预热 + 网关/直连对比）
+├── list_page_vo_with_token.lua     # POST 请求 wrk 配置（读取 SATOKEN 环境变量）
 └── results/
-    └── baseline_test_20260206.md   # 基准测试报告
+    ├── baseline_test_20260206.md   # 基准测试报告（无缓存）
+    ├── cache_test_20260209.md      # 缓存测试报告
+    └── cache_test_20260209_compare.md # 缓存命中 + 网关/直连对比
 ```
