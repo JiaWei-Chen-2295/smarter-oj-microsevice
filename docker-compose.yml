@@ -100,6 +100,36 @@ services:
     networks:
       - smarteroj-network
 
+  # Sentinel Dashboard 流量控制控制台
+  sentinel-dashboard:
+    image: ${DOCKER_REGISTRY:-docker.m.daocloud.io}/bladex/sentinel-dashboard:1.8.6
+    container_name: smarteroj-sentinel-dashboard
+    restart: always
+    environment:
+      # 登录用户名
+      SENTINEL_DASHBOARD_AUTH_USERNAME: ${SENTINEL_USERNAME:-sentinel}
+      # 登录密码
+      SENTINEL_DASHBOARD_AUTH_PASSWORD: ${SENTINEL_PASSWORD:-sentinel}
+      # JVM 参数
+      JAVA_OPTS: >-
+        -Dserver.port=8858
+        -Dcsp.sentinel.dashboard.server=localhost:8858
+        -Dproject.name=sentinel-dashboard
+        -Dsentinel.dashboard.auth.username=${SENTINEL_USERNAME:-sentinel}
+        -Dsentinel.dashboard.auth.password=${SENTINEL_PASSWORD:-sentinel}
+        -Xms128m
+        -Xmx256m
+    ports:
+      - "8858:8858"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8858"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - smarteroj-network
+
 networks:
   smarteroj-network:
     driver: bridge

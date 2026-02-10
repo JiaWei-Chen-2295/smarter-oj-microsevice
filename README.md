@@ -4,9 +4,19 @@
 [![Sa-Token](https://img.shields.io/badge/Security-Sa--Token-blue.svg)](https://sa-token.cc/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Smarter-OJ 是一款基于微服务架构的分布式在线算法评测系统（Online Judge）。项目采用业界主流的微服务治理方案，旨在提供高可用、可扩展的算法训练与评测平台。
+Smarter-OJ 是一个基于 **Spring Cloud Alibaba** 的 OJ（Online Judge）后端微服务项目，覆盖用户、题库、判题、社区与协作房间等核心服务，并提供 Docker Compose 部署与压测材料，方便本地一键跑通与验证关键链路。
 
 ---
+
+## 项目概览
+
+这个仓库更偏向「可落地的微服务工程实践」：你可以从 0 启动一整套 OJ 后端，并沿着真实链路看到网关、鉴权、服务治理、缓存与压测是如何串起来的。
+
+你可以在这里获得：
+
+- 一套可运行的 OJ 后端原型（用户 / 题库 / 判题 / 社区 / 房间协作）
+- Spring Cloud Alibaba 典型组件的组合落地（Nacos / Gateway / Sentinel）
+- 以“可复现实验”为目标的性能优化材料（多级缓存命中验证、网关 vs 直连对比压测）
 
 ## 项目亮点
 
@@ -18,13 +28,14 @@ Smarter-OJ 是一款基于微服务架构的分布式在线算法评测系统（
 
 ## 目录
 
-- 项目亮点
-- 技术栈
-- 架构与模块
-- 快速开始
-- 文档与压测
-- 路线图
-- 贡献
+- [项目概览](#项目概览)
+- [项目亮点](#项目亮点)
+- [技术栈](#技术栈)
+- [架构与模块](#架构与模块)
+- [快速开始](#快速开始)
+- [文档与压测](#文档与压测)
+- [路线图](#路线图)
+- [贡献](#贡献)
 
 ## 技术栈
 
@@ -50,6 +61,11 @@ smarter-oj-microsevice
 └── jc-smarter-oj-server-client            -- Feign Client 定义
 ```
 
+### 核心调用链（简述）
+
+- **读题**：Gateway → Question Service →（Caffeine / Redis）→ MySQL → 返回 QuestionVO（含必要的用户信息）
+- **提交判题**：Gateway → Judge Service → Code Sandbox（本地示例 / Remote / Judge0 等）→ 聚合结果并落库
+
 ## 快速开始
 
 ### 前置要求
@@ -57,11 +73,25 @@ smarter-oj-microsevice
 - JDK 8+（或项目要求的 Java 版本）
 - Docker + Docker Compose
 
-### 启动基础依赖（MySQL/Redis/Nacos/Sentinel）
+### 1) 准备环境变量
+
+项目的 Docker Compose 默认读取 `.env.prod`：
 
 ```bash
-docker-compose up -d
+cp env.prod.example .env.prod
 ```
+
+Windows PowerShell 可用：`Copy-Item env.prod.example .env.prod`
+
+如果你需要短信/验证码等第三方能力，请在 `.env.prod` 中填入自己的配置；生产环境请务必自行管理密钥，不要将真实密钥提交到仓库。
+
+### 2) 启动基础依赖（MySQL/Redis/Nacos/Sentinel）
+
+```bash
+docker compose up -d
+```
+
+如你的环境只有 `docker-compose`，请把上面命令中的 `docker compose` 替换为 `docker-compose`。
 
 默认端口（以 `docker-compose.yml` 为准）：
 
@@ -70,7 +100,7 @@ docker-compose up -d
 - Nacos: `8848`
 - Sentinel Dashboard: `8858`
 
-### 启动微服务
+### 3) 启动微服务（本地开发）
 
 建议启动顺序：
 
@@ -79,12 +109,39 @@ docker-compose up -d
 3. `jc-smarteroj-backend-question-service`
 4. `jc-smarteroj-backend-judge-service`（以及对应沙箱）
 
-接口文档（聚合/路由入口）：`http://localhost:8101/api/question/doc.html`
+接口文档（聚合入口）：`http://localhost:8101/doc.html`
+
+### 4) 可选：用 Docker 一键拉起全部微服务
+
+如果你希望把业务服务也容器化运行：
+
+```bash
+# 先构建各服务 jar（Windows 可用 `build-jars.ps1`）
+./build-jars.sh
+
+# 再启动业务服务与网关
+docker compose -f docker-compose-services.yml up -d
+```
+
+常用访问地址：
+
+- 网关：`http://localhost:8101`
+- Knife4j 聚合文档：`http://localhost:8101/doc.html`
+- Nacos：`http://localhost:8848/nacos`（默认账号密码 `nacos/nacos`）
+- Sentinel Dashboard：`http://localhost:8858`
 
 ## 文档与压测
 
+- Docker Compose 一键部署：`docs/DOCKER_DEPLOYMENT.md`
 - 压测脚本与报告：`docs/stress_test/README.md`
 - 压测结果归档：`docs/stress_test/results/`
+
+其他设计文档索引：
+
+- 题库多级缓存方案：`docs/题目列表多级缓存方案.md`
+- Sentinel 限流与黑名单规划：`docs/Sentinel限流与黑名单规划方案.md`
+- Sa-Token 迁移方案与报告：`docs/Sa-Token迁移方案.md`、`docs/Sa-Token迁移报告.md`
+- 协作功能设计：`docs/协作功能设计文档.md`
 
 缓存相关的可验证数据（示例）：
 
