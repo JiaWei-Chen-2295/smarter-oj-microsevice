@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'smarteroj-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['smarteroj-gateway:9990']
+  - job_name: 'smarteroj-user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['smarteroj-user-service:9991']
+  - job_name: 'smarteroj-question-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['smarteroj-question-service:9992']
+  - job_name: 'smarteroj-judge-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['smarteroj-judge-service:9993']
+  - job_name: 'smarteroj-post-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['smarteroj-post-service:9994']
+  - job_name: 'smarteroj-room-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['smarteroj-room-service:9995']
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

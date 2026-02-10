@@ -127,6 +127,13 @@ gateway:
       - jc-smarteroj-backend-judge-service
       - jc-smarteroj-backend-post-service
       - jc-smarteroj-backend-room-service
+    # 各服务管理端口映射（本地多服务并行时使用）
+    management-ports:
+      jc-smarteroj-backend-user-service: 9991
+      jc-smarteroj-backend-question-service: 9992
+      jc-smarteroj-backend-judge-service: 9993
+      jc-smarteroj-backend-post-service: 9994
+      jc-smarteroj-backend-room-service: 9995
 
 # ====== 黑名单配置 ======
 blacklist:
@@ -136,3 +143,25 @@ blacklist:
   rate-limit-threshold: 3
   # 进入临时黑名单次数达到此值时触发永久黑名单警告
   perm-ban-warning-threshold: 3
+
+# ====== 监控配置 ======
+management:
+  server:
+    port: 9990
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,gateway
+  endpoint:
+    health:
+      show-details: when-authorized
+    prometheus:
+      enabled: true
+    gateway:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        spring.cloud.gateway.requests: true

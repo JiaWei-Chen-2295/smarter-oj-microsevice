@@ -95,8 +95,9 @@ public class ServiceWarmup {
                 if (!instances.isEmpty()) {
                     ServiceInstance instance = instances.get(0);
                     // 发起健康检查请求保持连接活跃
+                    int managementPort = resolveManagementPort(serviceName);
                     String url = String.format("http://%s:%d/actuator/health",
-                            instance.getHost(), instance.getPort());
+                            instance.getHost(), managementPort);
 
                     webClient.get()
                             .uri(url)
@@ -156,8 +157,9 @@ public class ServiceWarmup {
                     return Mono.empty();
                 }
                 ServiceInstance instance = instances.get(0);
+                int managementPort = resolveManagementPort(serviceName);
                 String url = String.format("http://%s:%d/actuator/health",
-                        instance.getHost(), instance.getPort());
+                        instance.getHost(), managementPort);
 
                 return webClient.get()
                         .uri(url)
@@ -173,5 +175,14 @@ public class ServiceWarmup {
                 return Mono.empty();
             }
         });
+    }
+
+    private int resolveManagementPort(String serviceName) {
+        Integer port = warmupProperties.getManagementPorts().get(serviceName);
+        if (port != null) {
+            return port;
+        }
+        Integer fallback = warmupProperties.getManagementPort();
+        return fallback != null ? fallback : 9999;
     }
 }

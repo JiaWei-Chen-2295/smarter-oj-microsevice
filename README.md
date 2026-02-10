@@ -24,6 +24,7 @@ Smarter-OJ 是一个基于 **Spring Cloud Alibaba** 的 OJ（Online Judge）后�
 - **网关统一治理**：Spring Cloud Gateway 聚合路由 + Sa-Token 统一鉴权，边界清晰、入口可控。
 - **流量防护体系**：Sentinel 覆盖网关与业务端，支持限流/熔断/降级，规则可通过 Nacos 持久化。
 - **判题服务解耦**：评测中心与业务逻辑解耦，可对接 Judge0 等沙箱引擎。
+- **可观测性**：Prometheus + Grafana 监控体系与业务指标（详见 `docs/observability.md`）。
 - **可验证的性能数据**：压测脚本与报告归档，支持缓存命中验证与网关/直连对比（见 `docs/stress_test/`）。
 
 ## 目录
@@ -133,6 +134,7 @@ docker compose -f docker-compose-services.yml up -d
 ## 文档与压测
 
 - Docker Compose 一键部署：`docs/DOCKER_DEPLOYMENT.md`
+- 可观测性与监控：`docs/observability.md`
 - 压测脚本与报告：`docs/stress_test/README.md`
 - 压测结果归档：`docs/stress_test/results/`
 
@@ -154,7 +156,7 @@ docker compose -f docker-compose-services.yml up -d
 - [X] 分布式认证（Sa-Token + Redis）
 - [X] 题库服务多级缓存与压测归档
 - [X] 判题中心与沙箱解耦
-- [ ] 监控体系（Prometheus + Grafana）
+- [X] 监控体系（Prometheus + Grafana）
 
 ## 贡献
 

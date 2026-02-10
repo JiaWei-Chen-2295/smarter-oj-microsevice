@@ -14,6 +14,7 @@ import fun.javierchen.jcojbackendmodel.dto.user.*;
 import fun.javierchen.jcojbackendmodel.entity.User;
 import fun.javierchen.jcojbackendmodel.vo.LoginUserVO;
 import fun.javierchen.jcojbackendmodel.vo.UserVO;
+import fun.javierchen.jcsmarterojbackenduserservice.metrics.UserMetrics;
 import fun.javierchen.jcsmarterojbackenduserservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +44,9 @@ public class UserController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private UserMetrics userMetrics;
+
     // region 登录相关
 
     /**
@@ -62,8 +66,14 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
             return null;
         }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
-        return ResultUtils.success(result);
+        try {
+            long result = userService.userRegister(userAccount, userPassword, checkPassword);
+            userMetrics.recordRegister();
+            return ResultUtils.success(result);
+        } catch (Exception e) {
+            userMetrics.recordRegister();
+            throw e;
+        }
     }
 
     /**
@@ -84,8 +94,14 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
-        return ResultUtils.success(loginUserVO);
+        try {
+            LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
+            userMetrics.recordLoginSuccess();
+            return ResultUtils.success(loginUserVO);
+        } catch (Exception e) {
+            userMetrics.recordLoginFail();
+            throw e;
+        }
     }
 
     /**
@@ -354,7 +370,13 @@ public class UserController {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO loginUserVO = userService.userLoginByPhone(request, httpServletRequest);
-        return ResultUtils.success(loginUserVO);
+        try {
+            LoginUserVO loginUserVO = userService.userLoginByPhone(request, httpServletRequest);
+            userMetrics.recordLoginSuccess();
+            return ResultUtils.success(loginUserVO);
+        } catch (Exception e) {
+            userMetrics.recordLoginFail();
+            throw e;
+        }
     }
 }

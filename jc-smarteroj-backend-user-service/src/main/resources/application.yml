@@ -145,3 +145,25 @@ spring.cloud.sentinel:
   # 开启 Sentinel 过滤器
   filter:
     enabled: true
+
+# ====== 监控配置 ======
+management:
+  server:
+    port: 9991
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      sla:
+        http.server.requests: 50ms,100ms,200ms,500ms,1000ms,5000ms
